@@ -1,0 +1,4 @@
+﻿Changes:
+
+1. Documentation was reworked.
+2. ExtractVersionFromAssemblyFile works with any dll and exe (non assemblies of .net) either.
