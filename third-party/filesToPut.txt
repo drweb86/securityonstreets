@@ -1,0 +1,6 @@
+Several files must be put into that dir before build
+
+A. K-Lite_Codec_Pack_800_Full.exe ==> <root>
+B. Microsoft .Net Framework 4 (Full Profile).exe ==> <root>
+C. Opera_1152_int_Setup.exe ==> <root>
+D. Microsoft .Net Framework 3.5.exe ==> <root>\Windows 2003, XP, Vista, 2008, 2008 SP1, 2008 SP2

@@ -1,0 +1,40 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Configuration>
+  <Servers>
+    <Server Type="MJpeg">
+      <Uri>http://localhost:2000/</Uri>
+      <FrameDelay>130</FrameDelay>
+      <Source Type="videoFile" Name="Demo Camera 3">
+        <File>SS101668.AVI</File>
+        <InstanciateMode>InstancePerServer</InstanciateMode>
+        <Format>Jpeg</Format>
+        <BufferFrames>10000</BufferFrames>
+        <TimeStart>0:0:00:02.000</TimeStart>
+        <TimeEnd>0:0:00:19.000</TimeEnd>
+        <TimeStep>0:0:00:00.050</TimeStep>
+        <RotateY>true</RotateY>
+      </Source>
+    </Server>
+  </Servers>
+</Configuration>
+<!--
+Web-camera
+
+<?xml version="1.0" encoding="utf-8"?>
+<Configuration>
+  <Servers>
+    <Server Type="MJpeg">
+      <Uri>http://localhost:2000/</Uri>
+      <FrameDelay>500</FrameDelay>
+      <Source Type="webcam" Name="web-camera source">
+	<InputVideoDeviceId>0</InputVideoDeviceId>
+        <Format>Jpeg</Format>
+        <ReadSpeed>20</ReadSpeed>
+        <CameraRealWidth>640</CameraRealWidth>
+        <CameraRealHeight>480</CameraRealHeight>
+        <RotateY>false</RotateY>
+      </Source>
+    </Server>
+  </Servers>
+</Configuration>
+-->
