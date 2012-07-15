@@ -1,0 +1,7 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Configuration>
+  <Tools>
+    <Load tool="HDE.IpCamClientServer.Client.CamViewer.CamViewerTool, HDE.IpCamClientServer.Client.CamViewer" name="Cam Viewer" addToMenu="Tools/Cam Viewer" />
+    <Load tool="HDE.IpCamClientServer.Client.Report.ReportTool, HDE.IpCamClientServer.Client.Report" name="Report Tool" addToMenu="Tools/Report Tool" />
+  </Tools>
+</Configuration>
