@@ -3,8 +3,8 @@ using System.Drawing;
 using System.Windows.Forms;
 using HDE.IpCamClientServer.Client.Report.Controller;
 using HDE.IpCamClientServer.Client.Report.Model;
-using HDE.IpCamClientServer.Common.AspectOrientedFramework.View;
 using HDE.IpCamClientServer.Common.Messaging;
+using HDE.Platform.AspectOrientedFramework.View;
 
 namespace HDE.IpCamClientServer.Client.Report.View
 {

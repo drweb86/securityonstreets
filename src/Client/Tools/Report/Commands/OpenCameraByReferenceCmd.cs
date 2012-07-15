@@ -1,5 +1,5 @@
 ﻿using HDE.IpCamClientServer.Client.Report.Controller;
-using HDE.IpCamClientServer.Common.AspectOrientedFramework.Services;
+using HDE.Platform.AspectOrientedFramework.Services;
 
 namespace HDE.IpCamClientServer.Client.Report.Commands
 {

@@ -1,6 +1,7 @@
 ﻿using HDE.IpCamClientServer.Common;
 using HDE.IpCamClientServer.Server.Core.Model;
 using HDE.IpCamClientServer.Server.ServerC.Controller;
+using HDE.Platform.Serialization;
 
 namespace HDE.IpCamClientServer.Server.ServerC.Commands
 {
