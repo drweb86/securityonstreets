@@ -1,0 +1,105 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HDE.IpCamClientServer.Client", "Client\Shell\HDE.IpCamClientServer.Client.csproj", "{97420EC5-BAF1-4BC5-B99C-25C919EF6FBD}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Image Processing Server", "Image Processing Server", "{435F472A-CFBA-44DC-B9C0-4AE7E5615CAC}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Common", "Common", "{EEAD4391-B7B9-4027-A61D-C9B8B18D3567}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Client", "Client", "{8F867DB4-9CE6-4775-94F3-51A340250404}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HDE.IpCamClientServer.Common", "Common\HDE.IpCamClientServer.Common\HDE.IpCamClientServer.Common.csproj", "{7813C34E-7F1D-44D6-B474-3B72121FA21C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HDE.IpCamClientServer.Server.Core", "Server\HDE.IpCamClientServer.Server.Core\HDE.IpCamClientServer.Server.Core.csproj", "{4CD65F09-0C0B-4A76-87DB-99F4D7ED6310}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HDE.IpCamClientServer.Server.ServerC", "Server\HDE.IpCamClientServer.Server.ServerC\HDE.IpCamClientServer.Server.ServerC.csproj", "{4875915A-D022-4762-B79C-AEB09C4DBA87}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tools", "Tools", "{C04C7101-73E2-49FB-811E-178DA953DEA4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HDE.IpCamClientServer.Client.CamViewer", "Client\Tools\CamViewer\HDE.IpCamClientServer.Client.CamViewer.csproj", "{2A8C6C3E-BF04-4E5E-8E2D-4D348373AF3B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HDE.IpCamClientServer.Client.Report", "Client\Tools\Report\HDE.IpCamClientServer.Client.Report.csproj", "{A2A196F2-FEB1-4C79-966E-1CF70DA04EE8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HDE.IpCamClientServer.Client.Common", "Client\Tools\Common\HDE.IpCamClientServer.Client.Common.csproj", "{93252BC1-45F8-420B-AAC1-FCC7D341CE6B}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Dependencies", "Dependencies", "{A78213FB-882E-49D1-9700-979732E3B207}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MessageRouter.Common", "Components\MessageRouter\Common\MessageRouter.Common.csproj", "{6E40DB4F-390C-4E7A-B5E8-8089B3730A3B}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Mixed Platforms = Debug|Mixed Platforms
+		Debug|x86 = Debug|x86
+		Release|Mixed Platforms = Release|Mixed Platforms
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{97420EC5-BAF1-4BC5-B99C-25C919EF6FBD}.Debug|Mixed Platforms.ActiveCfg = Release|x86
+		{97420EC5-BAF1-4BC5-B99C-25C919EF6FBD}.Debug|Mixed Platforms.Build.0 = Release|x86
+		{97420EC5-BAF1-4BC5-B99C-25C919EF6FBD}.Debug|x86.ActiveCfg = Debug|x86
+		{97420EC5-BAF1-4BC5-B99C-25C919EF6FBD}.Debug|x86.Build.0 = Debug|x86
+		{97420EC5-BAF1-4BC5-B99C-25C919EF6FBD}.Release|Mixed Platforms.ActiveCfg = Release|x86
+		{97420EC5-BAF1-4BC5-B99C-25C919EF6FBD}.Release|Mixed Platforms.Build.0 = Release|x86
+		{97420EC5-BAF1-4BC5-B99C-25C919EF6FBD}.Release|x86.ActiveCfg = Release|x86
+		{97420EC5-BAF1-4BC5-B99C-25C919EF6FBD}.Release|x86.Build.0 = Release|x86
+		{7813C34E-7F1D-44D6-B474-3B72121FA21C}.Debug|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{7813C34E-7F1D-44D6-B474-3B72121FA21C}.Debug|Mixed Platforms.Build.0 = Release|Any CPU
+		{7813C34E-7F1D-44D6-B474-3B72121FA21C}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{7813C34E-7F1D-44D6-B474-3B72121FA21C}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{7813C34E-7F1D-44D6-B474-3B72121FA21C}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{7813C34E-7F1D-44D6-B474-3B72121FA21C}.Release|x86.ActiveCfg = Release|Any CPU
+		{4CD65F09-0C0B-4A76-87DB-99F4D7ED6310}.Debug|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{4CD65F09-0C0B-4A76-87DB-99F4D7ED6310}.Debug|Mixed Platforms.Build.0 = Release|Any CPU
+		{4CD65F09-0C0B-4A76-87DB-99F4D7ED6310}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{4CD65F09-0C0B-4A76-87DB-99F4D7ED6310}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{4CD65F09-0C0B-4A76-87DB-99F4D7ED6310}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{4CD65F09-0C0B-4A76-87DB-99F4D7ED6310}.Release|x86.ActiveCfg = Release|Any CPU
+		{4875915A-D022-4762-B79C-AEB09C4DBA87}.Debug|Mixed Platforms.ActiveCfg = Release|x86
+		{4875915A-D022-4762-B79C-AEB09C4DBA87}.Debug|Mixed Platforms.Build.0 = Release|x86
+		{4875915A-D022-4762-B79C-AEB09C4DBA87}.Debug|x86.ActiveCfg = Debug|x86
+		{4875915A-D022-4762-B79C-AEB09C4DBA87}.Debug|x86.Build.0 = Debug|x86
+		{4875915A-D022-4762-B79C-AEB09C4DBA87}.Release|Mixed Platforms.ActiveCfg = Release|x86
+		{4875915A-D022-4762-B79C-AEB09C4DBA87}.Release|Mixed Platforms.Build.0 = Release|x86
+		{4875915A-D022-4762-B79C-AEB09C4DBA87}.Release|x86.ActiveCfg = Release|x86
+		{4875915A-D022-4762-B79C-AEB09C4DBA87}.Release|x86.Build.0 = Release|x86
+		{2A8C6C3E-BF04-4E5E-8E2D-4D348373AF3B}.Debug|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{2A8C6C3E-BF04-4E5E-8E2D-4D348373AF3B}.Debug|Mixed Platforms.Build.0 = Release|Any CPU
+		{2A8C6C3E-BF04-4E5E-8E2D-4D348373AF3B}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{2A8C6C3E-BF04-4E5E-8E2D-4D348373AF3B}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{2A8C6C3E-BF04-4E5E-8E2D-4D348373AF3B}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{2A8C6C3E-BF04-4E5E-8E2D-4D348373AF3B}.Release|x86.ActiveCfg = Release|Any CPU
+		{A2A196F2-FEB1-4C79-966E-1CF70DA04EE8}.Debug|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{A2A196F2-FEB1-4C79-966E-1CF70DA04EE8}.Debug|Mixed Platforms.Build.0 = Release|Any CPU
+		{A2A196F2-FEB1-4C79-966E-1CF70DA04EE8}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{A2A196F2-FEB1-4C79-966E-1CF70DA04EE8}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{A2A196F2-FEB1-4C79-966E-1CF70DA04EE8}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{A2A196F2-FEB1-4C79-966E-1CF70DA04EE8}.Release|x86.ActiveCfg = Release|Any CPU
+		{93252BC1-45F8-420B-AAC1-FCC7D341CE6B}.Debug|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{93252BC1-45F8-420B-AAC1-FCC7D341CE6B}.Debug|Mixed Platforms.Build.0 = Release|Any CPU
+		{93252BC1-45F8-420B-AAC1-FCC7D341CE6B}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{93252BC1-45F8-420B-AAC1-FCC7D341CE6B}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{93252BC1-45F8-420B-AAC1-FCC7D341CE6B}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{93252BC1-45F8-420B-AAC1-FCC7D341CE6B}.Release|x86.ActiveCfg = Release|Any CPU
+		{6E40DB4F-390C-4E7A-B5E8-8089B3730A3B}.Debug|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{6E40DB4F-390C-4E7A-B5E8-8089B3730A3B}.Debug|Mixed Platforms.Build.0 = Release|Any CPU
+		{6E40DB4F-390C-4E7A-B5E8-8089B3730A3B}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{6E40DB4F-390C-4E7A-B5E8-8089B3730A3B}.Release|Mixed Platforms.ActiveCfg = Release|Any CPU
+		{6E40DB4F-390C-4E7A-B5E8-8089B3730A3B}.Release|Mixed Platforms.Build.0 = Release|Any CPU
+		{6E40DB4F-390C-4E7A-B5E8-8089B3730A3B}.Release|x86.ActiveCfg = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{97420EC5-BAF1-4BC5-B99C-25C919EF6FBD} = {8F867DB4-9CE6-4775-94F3-51A340250404}
+		{C04C7101-73E2-49FB-811E-178DA953DEA4} = {8F867DB4-9CE6-4775-94F3-51A340250404}
+		{4CD65F09-0C0B-4A76-87DB-99F4D7ED6310} = {435F472A-CFBA-44DC-B9C0-4AE7E5615CAC}
+		{4875915A-D022-4762-B79C-AEB09C4DBA87} = {435F472A-CFBA-44DC-B9C0-4AE7E5615CAC}
+		{7813C34E-7F1D-44D6-B474-3B72121FA21C} = {EEAD4391-B7B9-4027-A61D-C9B8B18D3567}
+		{2A8C6C3E-BF04-4E5E-8E2D-4D348373AF3B} = {C04C7101-73E2-49FB-811E-178DA953DEA4}
+		{A2A196F2-FEB1-4C79-966E-1CF70DA04EE8} = {C04C7101-73E2-49FB-811E-178DA953DEA4}
+		{93252BC1-45F8-420B-AAC1-FCC7D341CE6B} = {C04C7101-73E2-49FB-811E-178DA953DEA4}
+		{6E40DB4F-390C-4E7A-B5E8-8089B3730A3B} = {A78213FB-882E-49D1-9700-979732E3B207}
+	EndGlobalSection
+EndGlobal

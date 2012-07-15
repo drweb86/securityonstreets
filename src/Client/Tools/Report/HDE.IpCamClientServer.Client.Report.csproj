@@ -1,0 +1,138 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{A2A196F2-FEB1-4C79-966E-1CF70DA04EE8}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>HDE.IpCamClientServer.Client.Report</RootNamespace>
+    <AssemblyName>HDE.IpCamClientServer.Client.Report</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\output\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <PlatformTarget>x86</PlatformTarget>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\output\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <PlatformTarget>x86</PlatformTarget>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Esent.Interop, Version=1.0.0.0, Culture=neutral, PublicKeyToken=b93b4ad6c4b80595, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\Bin\Esent.Interop.dll</HintPath>
+    </Reference>
+    <Reference Include="HDE.Platform, Version=5.0.0.0, Culture=neutral, PublicKeyToken=524ab38f6e765b0e, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\Bin\HDE.Platform.dll</HintPath>
+    </Reference>
+    <Reference Include="log4net, Version=1.2.10.0, Culture=neutral, PublicKeyToken=1b44e1d426115821, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\Bin\log4net.dll</HintPath>
+    </Reference>
+    <Reference Include="Rhino.Queues, Version=1.0.0.0, Culture=neutral, PublicKeyToken=0b3305902db7183f, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\Bin\Rhino.Queues.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+    <Reference Include="Wintellect.Threading, Version=4.2.3353.29511, Culture=neutral, PublicKeyToken=167f00fdf109b063, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\Bin\Wintellect.Threading.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Commands\ConnectToServerCmd.cs" />
+    <Compile Include="Commands\DisconnectFromServerCmd.cs" />
+    <Compile Include="Commands\MessageCmd.cs" />
+    <Compile Include="Commands\OpenCameraByReferenceCmd.cs" />
+    <Compile Include="Commands\SaveSettingsCmd.cs" />
+    <Compile Include="Commands\LoadSettingsCmd.cs" />
+    <Compile Include="Model\ImageProcessingRouterSubscriber.cs" />
+    <Compile Include="Model\ReportToolSettings.cs" />
+    <Compile Include="Commands\ReportToolSettingsHelper.cs" />
+    <Compile Include="Controller\ReportController.cs" />
+    <Compile Include="Model\ReportModel.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <Compile Include="ReportTool.cs" />
+    <Compile Include="View\ReportToolView.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="View\ReportToolView.Designer.cs">
+      <DependentUpon>ReportToolView.cs</DependentUpon>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Common\HDE.IpCamClientServer.Common\HDE.IpCamClientServer.Common.csproj">
+      <Project>{7813C34E-7F1D-44D6-B474-3B72121FA21C}</Project>
+      <Name>HDE.IpCamClientServer.Common</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Components\MessageRouter\Common\MessageRouter.Common.csproj">
+      <Project>{6E40DB4F-390C-4E7A-B5E8-8089B3730A3B}</Project>
+      <Name>MessageRouter.Common</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Common\HDE.IpCamClientServer.Client.Common.csproj">
+      <Project>{93252BC1-45F8-420B-AAC1-FCC7D341CE6B}</Project>
+      <Name>HDE.IpCamClientServer.Client.Common</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Add.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="View\ReportToolView.resx">
+      <DependentUpon>ReportToolView.cs</DependentUpon>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Modify.PNG" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Remove.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Start.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Stop.bmp" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
