@@ -3,6 +3,7 @@ using System.Reflection;
 using HDE.IpCamClientServer.Client.Report.Model;
 using HDE.IpCamClientServer.Common;
 using HDE.Platform.Logging;
+using HDE.Platform.Serialization;
 
 namespace HDE.IpCamClientServer.Client.Report.Commands
 {

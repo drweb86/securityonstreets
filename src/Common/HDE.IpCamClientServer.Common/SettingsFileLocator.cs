@@ -29,6 +29,10 @@ namespace HDE.IpCamClientServer.Common
             do
             {
                 currentFolder = Path.GetDirectoryName(currentFolder);
+                if (currentFolder == null)
+                {
+                    throw new ApplicationException("Application must be executed after configuration via Setup tool, when directory Configuration will be created.");
+                }
                 configurationFolder = Directory.GetDirectories(currentFolder)
                     .FirstOrDefault(dir=>string.Compare(Path.GetFileName(dir), Configuration, StringComparison.OrdinalIgnoreCase)==0);
             } 

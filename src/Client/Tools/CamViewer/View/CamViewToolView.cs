@@ -2,7 +2,7 @@
 using AForge.Video;
 using HDE.IpCamClientServer.Client.CamViewer.Controller;
 using HDE.IpCamClientServer.Common;
-using HDE.IpCamClientServer.Common.AspectOrientedFramework.View;
+using HDE.Platform.AspectOrientedFramework.View;
 
 namespace HDE.IpCamClientServer.Client.CamViewer.View
 {

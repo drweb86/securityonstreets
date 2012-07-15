@@ -2,7 +2,7 @@
 using HDE.IpCamClientServer.Client.Report.Controller;
 using HDE.IpCamClientServer.Client.Report.Model;
 using HDE.IpCamClientServer.Client.Report.View;
-using HDE.IpCamClientServer.Common.AspectOrientedFramework;
+using HDE.Platform.AspectOrientedFramework.WinForms;
 
 namespace HDE.IpCamClientServer.Client.Report
 {

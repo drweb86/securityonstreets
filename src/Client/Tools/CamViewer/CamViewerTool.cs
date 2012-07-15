@@ -2,7 +2,7 @@
 using HDE.IpCamClientServer.Client.CamViewer.Controller;
 using HDE.IpCamClientServer.Client.CamViewer.Model;
 using HDE.IpCamClientServer.Client.CamViewer.View;
-using HDE.IpCamClientServer.Common.AspectOrientedFramework;
+using HDE.Platform.AspectOrientedFramework.WinForms;
 
 namespace HDE.IpCamClientServer.Client.CamViewer
 {

@@ -1,8 +1,8 @@
 ﻿using System;
 using HDE.IpCamClientServer.Client.Report.Commands;
 using HDE.IpCamClientServer.Client.Report.Model;
-using HDE.IpCamClientServer.Common.AspectOrientedFramework.Collections;
 using HDE.Platform.AspectOrientedFramework;
+using HDE.Platform.Collections;
 using HDE.Platform.Logging;
 
 namespace HDE.IpCamClientServer.Client.Report.Controller

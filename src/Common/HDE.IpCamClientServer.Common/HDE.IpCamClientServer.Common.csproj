@@ -46,18 +46,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AspectOrientedFramework\Collections\ReadOnlyDictionary.cs" />
-    <Compile Include="AspectOrientedFramework\Services\IMessagePump.cs" />
-    <Compile Include="AspectOrientedFramework\Services\MessagePump.cs" />
-    <Compile Include="AspectOrientedFramework\Services\MessagePumpArgs.cs" />
-    <Compile Include="AspectOrientedFramework\Tool.cs" />
-    <Compile Include="AspectOrientedFramework\View\IToolView.cs" />
     <Compile Include="CameraConnection.cs" />
     <Compile Include="Messaging\ServerMessage.cs" />
     <Compile Include="Messaging\ServerMessageArgs.cs" />
     <Compile Include="Messaging\ServerMessageImportance.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SerializerHelper.cs" />
     <Compile Include="SettingsFileLocator.cs" />
   </ItemGroup>
   <ItemGroup />

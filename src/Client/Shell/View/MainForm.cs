@@ -4,10 +4,8 @@ using HDE.Platform.AspectOrientedFramework;
 
 namespace HDE.IpCamClientServer.Client.View
 {
-    public interface IMainFormView : IBaseView<ClientController>
+    public interface IMainFormView : Platform.AspectOrientedFramework.WinForms.IMainFormView, IBaseView<ClientController>
     {
-        TabControl TabControl { get; }
-        MenuStrip MainMenu { get; }
     }
 
     public partial class MainForm : Form, IMainFormView

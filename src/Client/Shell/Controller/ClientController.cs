@@ -4,11 +4,13 @@ using HDE.IpCamClientServer.Client.Commands;
 using HDE.IpCamClientServer.Client.Model;
 using HDE.IpCamClientServer.Client.View;
 using HDE.Platform.AspectOrientedFramework;
+using HDE.Platform.AspectOrientedFramework.WinForms;
 using HDE.Platform.Logging;
+using IMainFormView = HDE.IpCamClientServer.Client.View.IMainFormView;
 
 namespace HDE.IpCamClientServer.Client.Controller
 {
-    public class ClientController : IDisposable
+    public class ClientController : ShellBaseController<ClientModel>
     {
         #region Fields
 
@@ -28,11 +30,6 @@ namespace HDE.IpCamClientServer.Client.Controller
         public ClientController()
         {
             Model = new ClientModel();
-            Log = new SimpleFileLog(Path.Combine(
-                    Path.GetTempPath(),
-                    @"HDE\IpCamClientServer.Client"
-                    ));
-            Log.Open();
             _uiFactory.Register<IMainFormView, MainForm>();
         }
 
@@ -42,7 +39,7 @@ namespace HDE.IpCamClientServer.Client.Controller
 
         public void LoadSettings(IMainFormView view)
         {
-            new LoadSettingsCmd().LoadSettings(this, view);
+            Configure(view);
         }
 
         public void Execute()
@@ -52,7 +49,7 @@ namespace HDE.IpCamClientServer.Client.Controller
 
         public void TearDown()
         {
-            new TearDownCmd().TearDown(this);
+            TearDownTools();
         }
 
         #endregion
@@ -70,18 +67,14 @@ namespace HDE.IpCamClientServer.Client.Controller
 
         #endregion
 
-        #region IDisposable
-
-        public void Dispose()
+        protected override ILog CreateOpenLog()
         {
-            if (Log != null &&
-                Log.IsOpened)
-            {
-                Log.Close();
-            }
-            Log = null;
+            var log = new SimpleFileLog(Path.Combine(
+                    Path.GetTempPath(),
+                    @"HDE\IpCamClientServer.Client"
+                    ));
+            log.Open();
+            return log;
         }
-
-        #endregion
     }
 }

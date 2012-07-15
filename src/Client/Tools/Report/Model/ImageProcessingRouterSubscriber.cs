@@ -2,6 +2,7 @@
 using HDE.IpCamClientServer.Common;
 using HDE.IpCamClientServer.Common.Messaging;
 using HDE.Platform.Logging;
+using HDE.Platform.Serialization;
 using MessageRouter.Common;
 using Rhino.Queues.Model;
 
