@@ -1,0 +1,14 @@
+Preparation to compile
+
+1. Ensure 
+ - Microsoft .Net Framework 3.5 and 
+ - Microsoft .Net Framework 4.0 Full Profile 
+both are installed.
+
+2. C++ compilation requirements 
+	a. Build Boost 1.5.0 (http://www.boost.org) and put everything to directory
+<Root>\src\Cpp\boost_1_50_0
+
+
+Warning: C++ components building is not automated yet.
+You must build it by hands.
