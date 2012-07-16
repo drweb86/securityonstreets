@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<configuration>
+  <messaging>
+    <producers>
+      <host name="127.0.0.1" />
+    </producers>
+    <subscribers>
+      <host name="127.0.0.1" />
+    </subscribers>
+  </messaging>
+</configuration>
