@@ -15,19 +15,35 @@
 #include <boost/lexical_cast.hpp>
 #include "MessageRouterConfiguration.hpp"
 #include "server.hpp"
+/*
+Return codes:
+-2	Configuration is missing or invalid.
+
+*/
 
 int main(int argc, char* argv[])
 {
+	bool printConfigurationToConsole = false;
+	std::cout << "Console Message Router v1.0\n";
+	
+	std::cout << "Reading configuration file 'MessageBus.xml'...\n";
+	Configuration::MessageRouterConfiguration configuration;
+	try
+	{
+		configuration.Load();
+		if (printConfigurationToConsole)
+		{
+			configuration.ConfigurationToConsole();
+		}
+	}
+	catch (std::exception& e)
+	{
+		std::cerr << "Failed to read configuration: exception: " << e.what() << "\n";
+		return -2;
+	}
+
   try
   {
-	  std::cout << "Console Message Router v1.0\n";
-	  std::cout << "Reading configuration file 'MessageBus.xml'...\n";
-
-	  Configuration::MessageRouterConfiguration configuration;
-	  configuration.Load();
-	  configuration.ConfigurationToConsole();
-
-	      // Check command line arguments.
     if (argc != 5)
     {
       std::cerr << "Usage: http_server <address> <port> <threads> <doc_root>\n";
