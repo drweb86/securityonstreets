@@ -5,7 +5,12 @@
       <host name="127.0.0.1" />
     </producers>
     <subscribers>
-      <host name="127.0.0.1" />
+      <host name="127.1.0.1" />
     </subscribers>
   </messaging>
+  <server
+    address="127.0.0.1"
+    port="60000"
+    threads="2">
+  </server>
 </configuration>

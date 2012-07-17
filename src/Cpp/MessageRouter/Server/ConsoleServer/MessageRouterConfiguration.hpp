@@ -24,10 +24,16 @@ class Configuration::MessageRouterConfiguration
 {
 	private:
 		char* _expectedFileName;
+		std::vector<std::string> _allowedProducers;
+		std::vector<std::string> _allowedSubscribers;
+		std::string _serverAddress;
+		int _serverPort;
+		int _serverThreads;
 
 	public:
 		MessageRouterConfiguration();
 		void Load ();
+		void ConfigurationToConsole ();
 		bool MessageProducerHostAllowed(char* host);
 		bool MessageConsumerHostAllowed(char* host);
 };

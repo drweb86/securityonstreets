@@ -25,8 +25,9 @@ int main(int argc, char* argv[])
 
 	  Configuration::MessageRouterConfiguration configuration;
 	  configuration.Load();
+	  configuration.ConfigurationToConsole();
 
-    // Check command line arguments.
+	      // Check command line arguments.
     if (argc != 5)
     {
       std::cerr << "Usage: http_server <address> <port> <threads> <doc_root>\n";
