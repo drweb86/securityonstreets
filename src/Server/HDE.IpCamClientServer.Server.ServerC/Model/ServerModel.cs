@@ -1,5 +1,4 @@
 ﻿using System.IO;
-using System.Reflection;
 using System.Threading;
 using HDE.IpCamClientServer.Common;
 using HDE.IpCamClientServer.Server.Core.ImageProcessingHandlers;
@@ -15,18 +14,18 @@ namespace HDE.IpCamClientServer.Server.ServerC.Model
         public string ServerConfigFile { get; private set; }
         public Thread WorkerThread { get; set; }
         public MovementHandler MovementDetection { get; private set; }
-
+        
         #endregion
 
         #region Contructors
 
-        public ServerModel()
+        public ServerModel(IInterceptor interceptor)
         {
             ServerConfigFile = Path.Combine(
                 SettingsFileLocator.LocateConfigurationFolder(),
                 "HDE.IpCamClientServer.Server.ServerC.xml");
 
-            MovementDetection = new MovementHandler();
+            MovementDetection = new MovementHandler(interceptor);
         }
 
         #endregion

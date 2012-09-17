@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Configuration;
 using System.IO;
 using HDE.IpCamClientServer.Server.ServerC.Commands;
 using HDE.IpCamClientServer.Server.ServerC.Model;
@@ -8,19 +9,24 @@ namespace HDE.IpCamClientServer.Server.ServerC.Controller
 {
     class ServerController: IDisposable
     {
+        #region Fields
+
+        private DebugInterceptor _interceptor;
+
+        #endregion
+
         #region Properties
 
         public ServerModel Model { get; private set; }
         public ILog Log { get; private set; }
-
+        public OperationMode OperationMode { get; private set; }
+        
         #endregion
 
         #region Constructors
 
         public ServerController()
         {
-            Model = new ServerModel();
-
             Log = new QueueLog(
                 new ConsoleLog(),
                 new SimpleFileLog(
@@ -31,6 +37,13 @@ namespace HDE.IpCamClientServer.Server.ServerC.Controller
             Log.Open();
 
             AppDomain.CurrentDomain.UnhandledException += (s, e) => ReportIssue(e.ExceptionObject);
+            OperationMode = (OperationMode)Enum.Parse(typeof(OperationMode), ConfigurationManager.AppSettings["OperationMode"], true);
+
+            if (OperationMode == OperationMode.Debug)
+            {
+                _interceptor = new DebugInterceptor();
+            }
+            Model = new ServerModel(_interceptor);
         }
 
         #endregion
@@ -39,6 +52,12 @@ namespace HDE.IpCamClientServer.Server.ServerC.Controller
 
         public void Dispose()
         {
+            if (_interceptor != null)
+            {
+                _interceptor.Dispose();
+                _interceptor = null;
+            }
+
             if (Log != null)
             {
                 Log.Close();
