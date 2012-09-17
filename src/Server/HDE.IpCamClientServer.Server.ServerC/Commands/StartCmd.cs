@@ -1,9 +1,5 @@
-﻿using System;
-using System.Diagnostics;
-using System.Drawing;
+﻿using System.Drawing;
 using System.Threading;
-using AForge.Imaging;
-using AForge.Imaging.Filters;
 using AForge.Video;
 using HDE.IpCamClientServer.Common.Messaging;
 using HDE.IpCamClientServer.Server.ServerC.Controller;
@@ -18,6 +14,10 @@ namespace HDE.IpCamClientServer.Server.ServerC.Commands
         public void Start(ServerController controller)
         {
             controller.Model.WorkerThread = new Thread(DoWork);
+            if (controller.OperationMode == OperationMode.Debug)
+            {
+                controller.Model.WorkerThread.SetApartmentState(ApartmentState.STA);
+            }
             controller.Model.WorkerThread.Start(controller);
         }
 

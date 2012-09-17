@@ -1,11 +1,11 @@
 ﻿using System;
-using System.Globalization;
 using HDE.IpCamClientServer.Server.ServerC.Controller;
 
 namespace HDE.IpCamClientServer.Server.ServerC
 {
     class Program
     {
+        [STAThread] // debugging needs View.
         static void Main(string[] args)
         {
             using (var controller = new ServerController())
