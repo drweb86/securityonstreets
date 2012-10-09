@@ -13,7 +13,7 @@ namespace HDE.IpCamClientServer.Server.ServerC.Model
         public ServerSettings Settings { get; set; }
         public string ServerConfigFile { get; private set; }
         public Thread WorkerThread { get; set; }
-        public MovementHandler MovementDetection { get; private set; }
+        public IHandler MovementDetection { get; private set; }
         
         #endregion
 
@@ -25,7 +25,7 @@ namespace HDE.IpCamClientServer.Server.ServerC.Model
                 SettingsFileLocator.LocateConfigurationFolder(),
                 "HDE.IpCamClientServer.Server.ServerC.xml");
 
-            MovementDetection = new MovementHandler(interceptor);
+            MovementDetection = new SpagnoloMovementDetector(interceptor);
         }
 
         #endregion
