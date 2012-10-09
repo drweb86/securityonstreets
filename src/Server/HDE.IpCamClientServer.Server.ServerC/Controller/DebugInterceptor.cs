@@ -23,10 +23,19 @@ namespace HDE.IpCamClientServer.Server.ServerC.Controller
             _debugViews = new Dictionary<string, IDebugView>();
             _threads = new List<Thread>();
 
-            var thread = new Thread(OnPerformThreadJob);
-            thread.SetApartmentState(ApartmentState.STA);
-            _threads.Add(thread);
-            thread.Start(new ThreadTask(MovementHandler.DifferenceImage, "Difference Image"));
+            {
+                var thread = new Thread(OnPerformThreadJob);
+                thread.SetApartmentState(ApartmentState.STA);
+                _threads.Add(thread);
+                thread.Start(new ThreadTask(SpagnoloMovementDetector.DifferenceImage, "Difference Image"));
+            }
+
+            {
+                var thread = new Thread(OnPerformThreadJob);
+                thread.SetApartmentState(ApartmentState.STA);
+                _threads.Add(thread);
+                thread.Start(new ThreadTask(SpagnoloMovementDetector.RadiometricSimmilarity, "Radiometric Simmilarity"));
+            }
         }
 
         #endregion

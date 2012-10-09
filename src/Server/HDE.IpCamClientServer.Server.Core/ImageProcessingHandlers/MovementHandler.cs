@@ -38,6 +38,11 @@ namespace HDE.IpCamClientServer.Server.Core.ImageProcessingHandlers
 
         #region IHandler Implementation
 
+        public void Configure(string configurationString)
+        {
+            //TODO:
+        }
+
         public string Process(Bitmap bitmap)
         {
             if (_differenceFilter.OverlayImage == null)
