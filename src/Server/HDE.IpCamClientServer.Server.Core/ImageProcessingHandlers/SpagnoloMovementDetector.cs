@@ -1,5 +1,6 @@
 using System;
 using System.Drawing;
+using System.Drawing.Imaging;
 using System.Runtime.InteropServices;
 
 namespace HDE.IpCamClientServer.Server.Core.ImageProcessingHandlers
@@ -17,7 +18,7 @@ namespace HDE.IpCamClientServer.Server.Core.ImageProcessingHandlers
         public const string DifferenceImage = "DIFF";
         
         public const int DefaultStartingFramesCount = 1; //DEBUG:!!!
-        public const double RadiometricDifferenceThrethhold = 0.4;
+        public const double RadiometricDifferenceThrethhold = 50;
 
         #endregion
 
@@ -44,9 +45,13 @@ namespace HDE.IpCamClientServer.Server.Core.ImageProcessingHandlers
             //TODO: extract parameters!
         }
 
+        private int width_;
+        private int height_;
+        private int stride_;
+
         private Bitmap _grayScaleFrameTMinus1;
-        private byte[,] _imageTMinus1Mean;
-        private byte[,] _imageTMinus1Variance;
+        private byte[,] _imageTMinus1MeanWH;
+        private byte[,] _imageTMinus1VarianceWH;
         private Bitmap _grayScaleBackground;
         public string Process(Bitmap bitmap)
         {
@@ -64,28 +69,92 @@ namespace HDE.IpCamClientServer.Server.Core.ImageProcessingHandlers
                     _grayScaleBackground == null)
                 {
                     _grayScaleFrameTMinus1 = (Bitmap)grayScaleImage.Clone();
-                    ImageHelper.CalculateMeanAndVarianceM9ColorBitmap(
+                    GrayScaleImageHelper.CalculateMeanAndVarianceM9(
                         _grayScaleFrameTMinus1, 
-                        out _imageTMinus1Mean,
-                        out _imageTMinus1Variance);
+                        out _imageTMinus1MeanWH,
+                        out _imageTMinus1VarianceWH);
                     _grayScaleBackground = (Bitmap)grayScaleImage.Clone();
                     return null;
                 }
 
+                var bounds = new Rectangle(0, 0, grayScaleImage.Width, grayScaleImage.Height);
+                BitmapData bitmapData = grayScaleImage.LockBits(bounds, ImageLockMode.ReadOnly, grayScaleImage.PixelFormat);
+                var grayScaleHW = new byte[grayScaleImage.Height * bitmapData.Stride];
+                Marshal.Copy(bitmapData.Scan0, grayScaleHW, 0, grayScaleImage.Height * bitmapData.Stride);
+
                 byte[,] imageTMean;
                 byte[,] imageTVariance;
-                byte[,] resultData;
-                using (
-                    var temporalImageAnalysisResult = GetRadiometricSimmilarity(grayScaleImage, out resultData, out imageTMean,
-                                                                                out imageTVariance))
+                byte[,] temporalImageAnalysisResultHW;
+                byte[,] motionWH;
+                bool motionPresents;
+                using (var temporalImageAnalysisResult = GetRadiometricSimmilarity(
+                    grayScaleImage.Width, 
+                    grayScaleImage.Height,
+                    bitmapData.Stride,
+                    grayScaleHW,
+                    out temporalImageAnalysisResultHW, 
+                    out imageTMean,
+                    out imageTVariance))
                 {
                     _interceptor.Intercept(RadiometricSimmilarity, temporalImageAnalysisResult);
+
+                    UpdateBackgroundOrForeground(
+                        temporalImageAnalysisResultHW,
+                        grayScaleImage.Width, 
+                        grayScaleImage.Height,
+                        bitmapData.Stride,
+                        grayScaleHW,
+                        out motionPresents,
+                        out motionWH);
+
                 }
 
-                _imageTMinus1Mean = imageTMean;
-                _imageTMinus1Variance = imageTVariance;
+                _imageTMinus1MeanWH = imageTMean;
+                _imageTMinus1VarianceWH = imageTVariance;
                 _grayScaleFrameTMinus1 = (Bitmap)grayScaleImage.Clone();
-                return null;
+                grayScaleImage.UnlockBits(bitmapData);
+
+                _interceptor.Intercept(DifferenceImage, GrayScaleImageHelper.FromWH(motionWH));
+
+                if (motionPresents)
+                {
+                    return "Movement detected!";
+                }
+            }
+            return null;
+        }
+
+        private void UpdateBackgroundOrForeground(
+            byte[,] radimetricAnalysisResultHW, 
+            int width,
+            int height,
+            int stride,
+            byte[] currentFrame,
+            //byte[,] background, 
+            out bool motionPresents, 
+            out byte[,] motionWH)
+        {
+            motionPresents = false;
+
+//TODO: get access to bytes of tiar
+//TODO: get access to bytes of background
+//TODO: update background.
+
+            motionWH = new byte[width, height];
+            for (int wi = 1; wi < (width-1);wi++)
+            {
+                for (int hi = 1; hi < (height - 1); hi++)
+                {
+                    if (radimetricAnalysisResultHW[hi, wi] > RadiometricDifferenceThrethhold)
+                    {
+                        motionWH[wi, hi] = currentFrame[GrayScaleImageHelper.ToDataPosition(wi, hi, stride)];
+                        motionPresents = true;
+                    }
+                    else
+                    {
+                        //TODO:
+                    }
+                }
             }
         }
 
@@ -95,29 +164,40 @@ namespace HDE.IpCamClientServer.Server.Core.ImageProcessingHandlers
 
         // Radometric Simillarity returns doubles 0..1.
         // They are converted to grayscale bitmap for quantification and future analysis.
-        private Bitmap GetRadiometricSimmilarity(Bitmap grayScaleFrameT, 
+        private Bitmap GetRadiometricSimmilarity(
+            int width,
+            int height,
+            int stride,
+            byte[] grayScaleData,
             out byte[,] dataHeigthWidth, 
-            out byte[,] imageTMeanHeightWidth, 
-            out byte[,] imageTVarianceHeightWidth)
+            out byte[,] imageTMeanWH, 
+            out byte[,] imageTVarianceWH)
         {
-            ImageHelper.CalculateMeanAndVarianceM9ColorBitmap(
-                grayScaleFrameT, 
+            GrayScaleImageHelper.CalculateMeanAndVarianceM9(
+                width,
+                height,
+                stride,
+                grayScaleData, 
                 
-                out imageTMeanHeightWidth, 
-                out imageTVarianceHeightWidth);
+                out imageTMeanWH, 
+                out imageTVarianceWH);
 
             // Radiometric simillarity.
             GCHandle handle;
-            var result = GrayScaleImageHelper.BeginImage(grayScaleFrameT.Width, grayScaleFrameT.Height, out dataHeigthWidth, out handle);
-            long[,] firstItem;
-            ImageHelper.CalculateMeanAndVarianceM9ColorBitmap2(grayScaleFrameT, _grayScaleFrameTMinus1, out firstItem);
-            for (int width = 1; width < (grayScaleFrameT.Width-1); width++)
+            var result = GrayScaleImageHelper.BeginImage(width, height, out dataHeigthWidth, out handle);
+            double[,] firstItemWH;
+            GrayScaleImageHelper.GetMultiplier1(width, height, stride, grayScaleData, _grayScaleFrameTMinus1, out firstItemWH);
+            for (int widthI = 1; widthI < (width - 1); widthI++)
             {
-                for (int height = 1; height < (grayScaleFrameT.Height-1); height++)
+                for (int heightI = 1; heightI < (height - 1); heightI++)
                 {
-                    dataHeigthWidth[height, width] =
-                        (byte)((firstItem[height, width] - imageTMeanHeightWidth[height, width] * _imageTMinus1Mean[height, width]) /
-                        Math.Sqrt(imageTVarianceHeightWidth[width, height]*_imageTMinus1Variance[height, width]));
+                    dataHeigthWidth[heightI, widthI] = (byte)
+                        (
+                            byte.MaxValue * (   firstItemWH[widthI, heightI] -
+                                imageTMeanWH[widthI, heightI] * _imageTMinus1MeanWH[widthI, heightI]
+                            ) 
+                            /
+                            Math.Sqrt(imageTVarianceWH[widthI, heightI] * _imageTMinus1VarianceWH[widthI, heightI]));
                 }
             }
 

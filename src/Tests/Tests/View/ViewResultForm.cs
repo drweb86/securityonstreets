@@ -10,6 +10,7 @@ namespace Tests.View
         public ViewResultForm()
         {
             InitializeComponent();
+            BackgroundImageLayout = ImageLayout.Stretch;
         }
 
         #endregion
@@ -20,6 +21,8 @@ namespace Tests.View
         {
             Text = title;
             BackgroundImage = result;
+            Width = result.Width;
+            Height = result.Height;
         }
 
         #endregion

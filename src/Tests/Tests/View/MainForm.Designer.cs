@@ -30,6 +30,7 @@
         {
             this._bitmapToGrayscale = new System.Windows.Forms.Button();
             this.calculateMeanAverageIntensitiesButton_ = new System.Windows.Forms.Button();
+            this.testButton_ = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // _bitmapToGrayscale
@@ -54,11 +55,23 @@
             this.calculateMeanAverageIntensitiesButton_.UseVisualStyleBackColor = true;
             this.calculateMeanAverageIntensitiesButton_.Click += new System.EventHandler(this.OnCalculateMeanAndVarianceClick);
             // 
+            // testButton_
+            // 
+            this.testButton_.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.testButton_.Location = new System.Drawing.Point(383, 196);
+            this.testButton_.Name = "testButton_";
+            this.testButton_.Size = new System.Drawing.Size(199, 23);
+            this.testButton_.TabIndex = 2;
+            this.testButton_.Text = "Test";
+            this.testButton_.UseVisualStyleBackColor = true;
+            this.testButton_.Click += new System.EventHandler(this.testButton__Click);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(594, 420);
+            this.Controls.Add(this.testButton_);
             this.Controls.Add(this.calculateMeanAverageIntensitiesButton_);
             this.Controls.Add(this._bitmapToGrayscale);
             this.Name = "MainForm";
@@ -72,6 +85,7 @@
 
         private System.Windows.Forms.Button _bitmapToGrayscale;
         private System.Windows.Forms.Button calculateMeanAverageIntensitiesButton_;
+        private System.Windows.Forms.Button testButton_;
     }
 }
 

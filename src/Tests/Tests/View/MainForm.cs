@@ -44,14 +44,19 @@ namespace WindowsFormsApplication1
         private void OnCalculateMeanAndVarianceClick(object sender, EventArgs e)
         {
             var baseDir = Path.GetDirectoryName(Path.GetDirectoryName(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)));
-            var test = GrayScaleImageHelper.ToGrayScale(Path.Combine(baseDir, @"Test cases\MeanVarianceTest\Input.txt"));
+            var testData = GrayScaleImageHelper.ToGrayScale(Path.Combine(baseDir, @"Test cases\MeanVarianceTest\Input.txt"));
             byte[,] meanTest;
             byte[,] varianceTest;
-            GrayScaleImageHelper.CalculateMeanAndVarianceM9(test, out meanTest, out varianceTest);
-            var meanExpected = ArrayHelper.FromFile(Path.Combine(baseDir,@"Test cases\MeanVarianceTest\MeanOutput.txt"));
+            GrayScaleImageHelper.CalculateMeanAndVarianceM9(testData, out meanTest, out varianceTest);
+            var meanExpected = ArrayHelper.FromFile(Path.Combine(baseDir, @"Test cases\MeanVarianceTest\MeanOutput.txt"));
+            var varianceExpected = ArrayHelper.FromFile(Path.Combine(baseDir, @"Test cases\MeanVarianceTest\VarianceOutput.txt"));
             if (!ArrayHelper.Compare(meanExpected, meanTest, 1))
             {
-                MessageBox.Show("FAILED");
+                MessageBox.Show("Mean test failed.");
+            }
+            if (!ArrayHelper.Compare(varianceExpected, varianceTest, 1))
+            {
+                MessageBox.Show("Variance test failed.");
             }
             
             using (var openFileDialog = new OpenFileDialog())
@@ -68,10 +73,44 @@ namespace WindowsFormsApplication1
                         viewResultForm.Initialize("Average Brightness M9", GrayScaleImageHelper.ToGrayScale(mean));
                         viewResultForm.Show();
 
-
                         var viewResultForm2 = new ViewResultForm();
                         viewResultForm2.Initialize("Variance Brightness M9", GrayScaleImageHelper.ToGrayScale(variance));
                         viewResultForm2.Show();
+                    }
+                }
+            }
+        }
+
+        private void testButton__Click(object sender, EventArgs e)
+        {
+            using (var openFileDialog = new OpenFileDialog())
+            {
+                if (openFileDialog.ShowDialog() == DialogResult.OK)
+                {
+                    using (var bitmap = new Bitmap(openFileDialog.FileName))
+                    {
+                        using (var gs = GrayScaleImageHelper.ToGrayScale(bitmap))
+                        {
+                            using (var gsClone = (Bitmap)gs.Clone())
+                            {
+                                double[,] result;
+                                GrayScaleImageHelper.GetMultiplier1(gs, gsClone, out result);
+                                var maxValue = double.MinValue;
+                                for (int wi = 0;wi<result.GetLength(0);wi++)
+                                {
+                                    for (int hi = 0; hi < result.GetLength(1); hi++)
+                                    {
+                                        if (maxValue < result[wi,hi])
+                                        {
+                                            maxValue = result[wi, hi];
+                                        }
+
+                                    }
+                                }
+
+                                MessageBox.Show("" + Math.Round(maxValue));
+                            }
+                        }
                     }
                 }
             }
