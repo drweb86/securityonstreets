@@ -1,8 +1,11 @@
-﻿using System.IO;
+﻿using System.Configuration;
+using System.IO;
 using System.Threading;
 using HDE.IpCamClientServer.Common;
 using HDE.IpCamClientServer.Server.Core.ImageProcessingHandlers;
+using HDE.IpCamClientServer.Server.Core.ImageProcessingHandlers.MovementDetectors;
 using HDE.IpCamClientServer.Server.Core.Model;
+using HDE.IpCamClientServer.Server.ServerC.Controller;
 
 namespace HDE.IpCamClientServer.Server.ServerC.Model
 {
@@ -19,13 +22,15 @@ namespace HDE.IpCamClientServer.Server.ServerC.Model
 
         #region Contructors
 
-        public ServerModel(IInterceptor interceptor)
+        public ServerModel(DebugInterceptor interceptor)
         {
             ServerConfigFile = Path.Combine(
                 SettingsFileLocator.LocateConfigurationFolder(),
                 "HDE.IpCamClientServer.Server.ServerC.xml");
 
-            MovementDetection = new SpagnoloMovementDetector(interceptor);
+            MovementDetection = new JulioClaudioSoraiaMovementDetector(interceptor);
+            interceptor.Initialize(MovementDetection.GetDebugWindows());
+            MovementDetection.Configure(ConfigurationSettings.AppSettings["MovementDetector.Parameters"]);
         }
 
         #endregion

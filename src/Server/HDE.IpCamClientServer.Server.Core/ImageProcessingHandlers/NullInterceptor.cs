@@ -4,7 +4,7 @@ namespace HDE.IpCamClientServer.Server.Core.ImageProcessingHandlers
 {
     public sealed class NullInterceptor: IInterceptor
     {
-        public void Intercept(string difference, Image image)
+        public void Intercept(string difference, byte[] image)
         {
         }
     }
