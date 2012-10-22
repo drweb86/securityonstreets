@@ -56,67 +56,24 @@ namespace HDE.IpCamClientServer.Server.ServerC.Commands
             }
         }
 
-        private long _startingMachinerySkipFramesCount = 7; //during initialization of web-camera background is black.
         private void OnNewFrame(
             ServerController controller,
             IMessageRouterResults output, 
             NewFrameEventArgs eventargs)
         {
-            if (_startingMachinerySkipFramesCount > 0)
-            {
-                _startingMachinerySkipFramesCount--;
-                return;
-            }
             using (var bitmap = eventargs.Frame)
             {
-/*
-Temprarily Disabled
-                double totalBrightness = 0;
-                var stopWatch = Stopwatch.StartNew();
-                for (int width = 0; width < bitmap.Width; width++)
-                {
-                    for (int height = 0; height < bitmap.Height; height++)
-                    {
-                        totalBrightness += GetBrightness(bitmap
-                            .GetPixel(width, height));
-                    }
-                }
-                var brightnessPerPixel = totalBrightness/(1.0*bitmap.Width*bitmap.Height);
-                stopWatch.Stop();
+                var result = controller.Model.MovementDetection.Process(bitmap);
 
-                if (brightnessPerPixel < 1)
+                if (result != null)
                 {
                     output.SendBinary(new ServerMessage(
                         controller.Model.Settings.CameraConnection.Reference,
-                        "Camera is closed!",
-                        string.Format("Brightness : {0}; DateTime : {1}", brightnessPerPixel, DateTime.Now.ToString("g")),
+                        "Movement detection",
+                        result,
                         ServerMessageImportance.Secutiry));
                 }
-                else*/
-                {
-                    var result = controller.Model.MovementDetection.Process(bitmap);
-
-                    if (result != null)
-                    {
-                        output.SendBinary(new ServerMessage(
-                                              controller.Model.Settings.CameraConnection.Reference,
-                                              "Movement detection",
-                                              result,
-                                              ServerMessageImportance.Secutiry));
-                    }
-                }
             }
-
-            
-        }
-
-        #endregion
-
-        #region Private Methods
-
-        private double GetBrightness(Color color)
-        {
-            return 0.299*color.R + 0.587*color.G + 0.114*color.B;
         }
 
         #endregion

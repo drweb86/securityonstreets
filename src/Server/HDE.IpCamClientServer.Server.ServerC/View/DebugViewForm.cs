@@ -1,5 +1,5 @@
-﻿using System.Drawing;
-using System.Windows.Forms;
+﻿using System.Windows.Forms;
+using HDE.IpCamClientServer.Server.Core.ImageProcessingHandlers;
 
 namespace HDE.IpCamClientServer.Server.ServerC.View
 {
@@ -22,20 +22,38 @@ namespace HDE.IpCamClientServer.Server.ServerC.View
             ShowDialog();
         }
 
-        public void Update(Image image)
+        private readonly object _sync = new object();
+        public void Update(byte[] image)
         {
-            if (InvokeRequired)
-            {
-                Invoke(new MethodInvoker(() => Update(image)));
-            }
-            else
-            {
-                if (BackgroundImage != null)
+                if (InvokeRequired)
                 {
-                    BackgroundImage.Dispose();
+                    Invoke(new MethodInvoker(() => Update(image)));
                 }
+                else
+                {
+                    lock (_sync)
+            {
 
-                BackgroundImage = (Image)image.Clone();
+                        if (BackgroundImage != null)
+                        {
+                            var imageOld = BackgroundImage;
+                            BackgroundImage = null;
+                            imageOld.Dispose();
+                        }
+                var imageImg = ImageHelper.FromBytes(image);
+
+                    if (Width < (imageImg.Width + 30))
+                    {
+                        Width = imageImg.Width + 30;
+                    }
+
+                    if (Height < (imageImg.Height + 30))
+                    {
+                        Height = imageImg.Height + 30;
+                    }
+
+                    BackgroundImage = imageImg;
+                }
             }
         }
 

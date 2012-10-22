@@ -11,7 +11,7 @@ namespace HDE.IpCamClientServer.Server.ServerC.Controller
     {
         #region Properties
 
-        private readonly Dictionary<string, IDebugView> _debugViews;
+        private volatile Dictionary<string, IDebugView> _debugViews;
         private readonly List<Thread> _threads;
 
         #endregion
@@ -22,19 +22,20 @@ namespace HDE.IpCamClientServer.Server.ServerC.Controller
         {
             _debugViews = new Dictionary<string, IDebugView>();
             _threads = new List<Thread>();
+        }
 
+        #endregion
+
+        #region Public Methods
+
+        public void Initialize(string[] keys)
+        {
+            foreach (var key in keys)
             {
                 var thread = new Thread(OnPerformThreadJob);
                 thread.SetApartmentState(ApartmentState.STA);
                 _threads.Add(thread);
-                thread.Start(new ThreadTask(SpagnoloMovementDetector.DifferenceImage, "Difference Image"));
-            }
-
-            {
-                var thread = new Thread(OnPerformThreadJob);
-                thread.SetApartmentState(ApartmentState.STA);
-                _threads.Add(thread);
-                thread.Start(new ThreadTask(SpagnoloMovementDetector.RadiometricSimmilarity, "Radiometric Simmilarity"));
+                thread.Start(new ThreadTask(key, key));
             }
         }
 
@@ -42,7 +43,7 @@ namespace HDE.IpCamClientServer.Server.ServerC.Controller
 
         #region IInterceptor Implementation
 
-        public void Intercept(string key, Image image)
+        public void Intercept(string key, byte[] image)
         {
             if (_debugViews.ContainsKey(key))
             {

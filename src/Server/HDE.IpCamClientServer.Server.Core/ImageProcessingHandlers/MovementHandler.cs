@@ -38,6 +38,11 @@ namespace HDE.IpCamClientServer.Server.Core.ImageProcessingHandlers
 
         #region IHandler Implementation
 
+        public string[] GetDebugWindows()
+        {
+            return new[] {DifferenceImage};
+        }
+
         public void Configure(string configurationString)
         {
             //TODO:
@@ -52,7 +57,7 @@ namespace HDE.IpCamClientServer.Server.Core.ImageProcessingHandlers
             }
             using (var difference = _differenceFilter.Apply(bitmap))
             {
-                _interceptor.Intercept(DifferenceImage, difference);
+                _interceptor.Intercept(DifferenceImage, ImageHelper.ToBytes(difference));
 
                 if (_differenceFilter.WhitePixelsCount > _reportDifference)
                 {
