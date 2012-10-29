@@ -4,6 +4,7 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Runtime.InteropServices;
 using HDE.IpCamClientServer.Server.Core.ImageProcessingHandlers.Gray;
+using HDE.IpCamClientServer.Server.Core.Profiling;
 
 namespace HDE.IpCamClientServer.Server.Core.ImageProcessingHandlers.MovementDetectors
 {
@@ -208,6 +209,7 @@ namespace HDE.IpCamClientServer.Server.Core.ImageProcessingHandlers.MovementDete
 
         protected override string ProcessInternal(Bitmap bitmap)
         {
+            //using (new ProfilerScene())
             using (var grayScaleImage = GrayScaleImageHelper.ToGrayScale(bitmap))
             {
                 if (!_backgroundModel.IsOperational())
@@ -215,22 +217,12 @@ namespace HDE.IpCamClientServer.Server.Core.ImageProcessingHandlers.MovementDete
                     _backgroundModel.Train(grayScaleImage);
                     return null;
                 }
-#error: convert to bitmap fails due to leaks
-                // our model is trained and operational. Let's show once its state.
-                using (var image = GrayScaleImageHelper.FromData(_backgroundModel._width, _backgroundModel._height, _backgroundModel._stride, _backgroundModel._minIntensity))
+
+                while (true)
                 {
-                    ImageHelper.ToBytes(image);
-                    // _interceptor.Intercept(MinIntensityBackgroundDebugView, ImageHelper.ToBytes(image));
-                }
-                using (var image = GrayScaleImageHelper.FromData(_backgroundModel._width, _backgroundModel._height, _backgroundModel._stride, _backgroundModel._maxIntensity))
-                {
-                    ImageHelper.ToBytes(image);
-                    //_interceptor.Intercept(MaxIntensityBackgroundDebugView, ImageHelper.ToBytes(image));
-                }
-                using (var image = GrayScaleImageHelper.FromData(_backgroundModel._width, _backgroundModel._height, _backgroundModel._stride, _backgroundModel._maxPerFrameDifference))
-                {
-                    ImageHelper.ToBytes(image);
-                    //_interceptor.Intercept(MaxPerFrameDifferenceDebugView, ImageHelper.ToBytes(image));
+                    _interceptor.Intercept(MinIntensityBackgroundDebugView, GrayScaleImageHelper.FromData2(_backgroundModel._width, _backgroundModel._height, _backgroundModel._stride, _backgroundModel._minIntensity));
+                    _interceptor.Intercept(MaxIntensityBackgroundDebugView, GrayScaleImageHelper.FromData2(_backgroundModel._width, _backgroundModel._height, _backgroundModel._stride, _backgroundModel._maxIntensity));
+                    _interceptor.Intercept(MaxPerFrameDifferenceDebugView, GrayScaleImageHelper.FromData2(_backgroundModel._width, _backgroundModel._height, _backgroundModel._stride, _backgroundModel._maxPerFrameDifference));
                 }
             }
             return null;

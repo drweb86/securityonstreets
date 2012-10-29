@@ -99,6 +99,8 @@
     <Compile Include="Commands\StartCmd.cs" />
     <Compile Include="Commands\StopCmd.cs" />
     <Compile Include="Controller\DebugInterceptor.cs" />
+    <Compile Include="Controller\ImageSource.cs" />
+    <Compile Include="Controller\NewFrameEventArgs.cs" />
     <Compile Include="Controller\OperationMode.cs" />
     <Compile Include="Controller\ServerController.cs" />
     <Compile Include="Model\ServerModel.cs" />
