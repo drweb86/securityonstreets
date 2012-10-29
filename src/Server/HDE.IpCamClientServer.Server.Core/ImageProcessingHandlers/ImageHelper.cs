@@ -11,10 +11,11 @@ namespace HDE.IpCamClientServer.Server.Core.ImageProcessingHandlers
     {
         public static byte[] ToBytes(Image imageIn)
         {
-            using (var stream = new MemoryStream())
+            using (var ms = new MemoryStream())
             {
-                imageIn.Save(stream, ImageFormat.Bmp);
-                return stream.ToArray();
+                imageIn.Save(ms, ImageFormat.Jpeg);
+                ms.Close();
+                return ms.ToArray();
             }
         }
 

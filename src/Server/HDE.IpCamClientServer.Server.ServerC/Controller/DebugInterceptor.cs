@@ -12,6 +12,7 @@ namespace HDE.IpCamClientServer.Server.ServerC.Controller
         #region Properties
 
         private volatile Dictionary<string, IDebugView> _debugViews;
+        private readonly Dictionary<string, ImageSource> _imageSources;
         private readonly List<Thread> _threads;
 
         #endregion
@@ -21,6 +22,7 @@ namespace HDE.IpCamClientServer.Server.ServerC.Controller
         public DebugInterceptor()
         {
             _debugViews = new Dictionary<string, IDebugView>();
+            _imageSources = new Dictionary<string, ImageSource>();
             _threads = new List<Thread>();
         }
 
@@ -35,7 +37,8 @@ namespace HDE.IpCamClientServer.Server.ServerC.Controller
                 var thread = new Thread(OnPerformThreadJob);
                 thread.SetApartmentState(ApartmentState.STA);
                 _threads.Add(thread);
-                thread.Start(new ThreadTask(key, key));
+                _imageSources.Add(key, new ImageSource());
+                thread.Start(new ThreadTask(key, _imageSources[key]));
             }
         }
 
@@ -47,8 +50,10 @@ namespace HDE.IpCamClientServer.Server.ServerC.Controller
         {
             if (_debugViews.ContainsKey(key))
             {
-                var view = _debugViews[key];
-                view.Update(image);
+                byte[] copy = new byte[image.Length];
+                image.CopyTo(copy, 0);
+
+                _imageSources[key].NewFrameReceived(this, new NewFrameEventArgs(copy));
             }
         }
 
@@ -61,7 +66,7 @@ namespace HDE.IpCamClientServer.Server.ServerC.Controller
             var taskTyped = (ThreadTask) task;
             IDebugView operationWindow = new DebugViewForm();
             _debugViews.Add(taskTyped.Key, operationWindow);
-            operationWindow.Initialize(taskTyped.Title);
+            operationWindow.Initialize(taskTyped.Key, taskTyped.ImageSource);
         }
 
         #endregion
@@ -89,10 +94,10 @@ namespace HDE.IpCamClientServer.Server.ServerC.Controller
         {
             #region Constructors
 
-            public ThreadTask(string key, string title)
+            public ThreadTask(string key, ImageSource imageSource)
             {
                 Key = key;
-                Title = title;
+                ImageSource = imageSource;
             }
 
             #endregion
@@ -100,7 +105,7 @@ namespace HDE.IpCamClientServer.Server.ServerC.Controller
             #region Properties
 
             public string Key { get; private set; }
-            public string Title { get; private set; }
+            public ImageSource ImageSource { get; private set; }
 
             #endregion
         }

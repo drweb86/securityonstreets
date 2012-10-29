@@ -1,10 +1,10 @@
 using System;
+using HDE.IpCamClientServer.Server.ServerC.Controller;
 
 namespace HDE.IpCamClientServer.Server.ServerC.View
 {
-    internal interface IDebugView : IDisposable
+    interface IDebugView : IDisposable
     {
-        void Initialize(string title);
-        void Update(byte[] image);
+        void Initialize(string title, ImageSource source);
     }
 }

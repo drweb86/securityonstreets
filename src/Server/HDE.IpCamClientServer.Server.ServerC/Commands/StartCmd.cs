@@ -59,7 +59,7 @@ namespace HDE.IpCamClientServer.Server.ServerC.Commands
         private void OnNewFrame(
             ServerController controller,
             IMessageRouterResults output, 
-            NewFrameEventArgs eventargs)
+            AForge.Video.NewFrameEventArgs eventargs)
         {
             using (var bitmap = eventargs.Frame)
             {

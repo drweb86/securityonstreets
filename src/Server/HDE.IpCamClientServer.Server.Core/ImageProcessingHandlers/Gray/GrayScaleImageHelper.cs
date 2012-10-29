@@ -222,6 +222,7 @@ namespace HDE.IpCamClientServer.Server.Core.ImageProcessingHandlers.Gray
             return result;
         }
 
+        [Obsolete("Memory leaks")]
         public static Bitmap BeginImage(int width, int height, out byte[,] dataHeightWidth, out GCHandle handle)
         {
             int stride = 4 * ((width * 8 + 31) / 32);
@@ -238,10 +239,40 @@ namespace HDE.IpCamClientServer.Server.Core.ImageProcessingHandlers.Gray
             return result;
         }
 
+        [Obsolete("Memory leaks")]
         public static void EndImage(GCHandle handle)
         {
+//            Marshal.FreeCoTaskMem(handle.AddrOfPinnedObject());
             handle.Free();
         }
+
+        public static void BeginImage2(int width, int height, out byte[,] dataHeightWidth, out 
+            Tuple<Bitmap, GCHandle> token)
+        {
+            int stride = 4 * ((width * 8 + 31) / 32);
+            dataHeightWidth = new byte[height, stride];
+            var handle = GCHandle.Alloc(dataHeightWidth, GCHandleType.Pinned);
+
+            var result = new Bitmap(width, height, stride, PixelFormat.Format8bppIndexed, handle.AddrOfPinnedObject());
+            var palette = result.Palette;
+            for (int i = 0; i < 256; i++)
+            {
+                palette.Entries[i] = Color.FromArgb(255, i, i, i);
+            }
+            result.Palette = palette;
+            token = new Tuple<Bitmap, GCHandle>(result, handle);
+        }
+
+        public static byte[] EndImage2(Tuple<Bitmap, GCHandle> token)
+        {
+            var result = ImageHelper.ToBytes(token.Item1);
+
+            token.Item2.Free();
+            token.Item1.Dispose();
+
+            return result;
+        }
+
 
         /// <summary>
         /// Converts a bitmap into an 8-bit grayscale bitmap
@@ -362,6 +393,7 @@ namespace HDE.IpCamClientServer.Server.Core.ImageProcessingHandlers.Gray
             return result;
         }
 
+        [Obsolete("Memory leaks!")]
         public static Bitmap FromData(int width, int height, int stride, byte[] data)
         {
             byte[,] dataHeightWidth;
@@ -376,6 +408,21 @@ namespace HDE.IpCamClientServer.Server.Core.ImageProcessingHandlers.Gray
             }
             EndImage(handle);
             return result;
+        }
+
+        public static byte[] FromData2(int width, int height, int stride, byte[] data)
+        {
+            byte[,] dataHeightWidth;
+            Tuple<Bitmap, GCHandle> token;
+            BeginImage2(width, height, out dataHeightWidth, out token);
+            for (int widthI = 0; widthI < width; widthI++)
+            {
+                for (int heightI = 0; heightI < height; heightI++)
+                {
+                    dataHeightWidth[heightI, widthI] = data[ToDataPosition(widthI, heightI, stride)];
+                }
+            }
+            return EndImage2(token);
         }
     }
 }
