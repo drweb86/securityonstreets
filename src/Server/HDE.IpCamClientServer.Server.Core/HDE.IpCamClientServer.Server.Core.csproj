@@ -108,7 +108,6 @@
     <Compile Include="ImageProcessingHandlers\NullInterceptor.cs" />
     <Compile Include="ImageProcessingHandlers\MovementDetectors\SpagnoloMovementDetector.cs" />
     <Compile Include="Model\ServerSettings.cs" />
-    <Compile Include="Profiling\ProfilerScene.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ServerWorker.cs" />
   </ItemGroup>

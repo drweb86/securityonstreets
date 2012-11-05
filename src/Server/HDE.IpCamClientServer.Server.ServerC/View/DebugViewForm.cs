@@ -11,6 +11,7 @@ namespace HDE.IpCamClientServer.Server.ServerC.View
         #region Fields
 
         private ImageSource _source;
+        private int _windowNo;
 
         #endregion
 
@@ -23,10 +24,11 @@ namespace HDE.IpCamClientServer.Server.ServerC.View
 
         #endregion
 
-        #region Public Methods
+        #region Private Methods
 
-        void IDebugView.Initialize(string title, ImageSource source)
+        void IDebugView.Initialize(int windowNo, string title, ImageSource source)
         {
+            _windowNo = windowNo;
             Text = title;
             _source = source;
             _source.NewFrameReceived += OnNewFrameReceived;
@@ -52,7 +54,6 @@ namespace HDE.IpCamClientServer.Server.ServerC.View
         {
             lock (_sync)
             {
-                return;
                 if (BackgroundImage != null)
                 {
                     Image imageOld = BackgroundImage;
@@ -61,22 +62,20 @@ namespace HDE.IpCamClientServer.Server.ServerC.View
                 }
                 Image imageImg = ImageHelper.FromBytes(image);
 
-                if (Width < (imageImg.Width + 30))
+                if (Width < (imageImg.Width + 30) ||
+                    Height < (imageImg.Height + 30))
                 {
                     Width = imageImg.Width + 30;
-                }
+                    Left = (_windowNo%2)*Width;
 
-                if (Height < (imageImg.Height + 30))
-                {
                     Height = imageImg.Height + 30;
+                    Top = (_windowNo / 2) * Height;
                 }
 
                 BackgroundImage = imageImg;
             }
         }
-
-        #endregion
-
+        
         private void OnFormClosing(object sender, FormClosingEventArgs e)
         {
             if (_source != null)
@@ -85,5 +84,7 @@ namespace HDE.IpCamClientServer.Server.ServerC.View
                 _source = null;
             }
         }
+
+        #endregion
     }
 }

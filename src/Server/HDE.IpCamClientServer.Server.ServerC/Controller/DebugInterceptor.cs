@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Threading;
 using HDE.IpCamClientServer.Server.Core.ImageProcessingHandlers;
 using HDE.IpCamClientServer.Server.ServerC.View;
@@ -32,13 +31,15 @@ namespace HDE.IpCamClientServer.Server.ServerC.Controller
 
         public void Initialize(string[] keys)
         {
+            int windowNo = -1;
             foreach (var key in keys)
             {
+                windowNo++;
                 var thread = new Thread(OnPerformThreadJob);
                 thread.SetApartmentState(ApartmentState.STA);
                 _threads.Add(thread);
                 _imageSources.Add(key, new ImageSource());
-                thread.Start(new ThreadTask(key, _imageSources[key]));
+                thread.Start(new ThreadTask(windowNo, key, _imageSources[key]));
             }
         }
 
@@ -50,11 +51,14 @@ namespace HDE.IpCamClientServer.Server.ServerC.Controller
         {
             if (_debugViews.ContainsKey(key))
             {
-                byte[] copy = new byte[image.Length];
-                image.CopyTo(copy, 0);
-
-                _imageSources[key].NewFrameReceived(this, new NewFrameEventArgs(copy));
+                _imageSources[key].NewFrameReceived(this, new NewFrameEventArgs(image));
             }
+/* Yes, there're no memory leaks (but .Net usually blocks)
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
+*/
         }
 
         #endregion
@@ -66,7 +70,7 @@ namespace HDE.IpCamClientServer.Server.ServerC.Controller
             var taskTyped = (ThreadTask) task;
             IDebugView operationWindow = new DebugViewForm();
             _debugViews.Add(taskTyped.Key, operationWindow);
-            operationWindow.Initialize(taskTyped.Key, taskTyped.ImageSource);
+            operationWindow.Initialize(taskTyped.WindowNo, taskTyped.Key, taskTyped.ImageSource);
         }
 
         #endregion
@@ -94,8 +98,9 @@ namespace HDE.IpCamClientServer.Server.ServerC.Controller
         {
             #region Constructors
 
-            public ThreadTask(string key, ImageSource imageSource)
+            public ThreadTask(int windowNo, string key, ImageSource imageSource)
             {
+                WindowNo = windowNo;
                 Key = key;
                 ImageSource = imageSource;
             }
@@ -104,6 +109,7 @@ namespace HDE.IpCamClientServer.Server.ServerC.Controller
 
             #region Properties
 
+            public int WindowNo { get; private set; }
             public string Key { get; private set; }
             public ImageSource ImageSource { get; private set; }
 

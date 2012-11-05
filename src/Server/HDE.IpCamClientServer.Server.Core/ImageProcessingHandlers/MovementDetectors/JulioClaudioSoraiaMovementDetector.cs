@@ -1,10 +1,11 @@
 using System;
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Runtime.InteropServices;
 using HDE.IpCamClientServer.Server.Core.ImageProcessingHandlers.Gray;
-using HDE.IpCamClientServer.Server.Core.Profiling;
 
 namespace HDE.IpCamClientServer.Server.Core.ImageProcessingHandlers.MovementDetectors
 {
@@ -14,11 +15,21 @@ namespace HDE.IpCamClientServer.Server.Core.ImageProcessingHandlers.MovementDete
     /// </summary>
     public class JulioClaudioSoraiaMovementDetector : MovementDetectorBase<JulioClaudioSoraiaMovementDetector.JulioClaudioSoraiaMovementDetectorBackgroundModel>
     {
+        #region Fields
+
+        private int _k = -1;
+
+        #endregion
+
         #region Constants
+
+        private const string InputFrameDebugView = "Input Frame";
 
         private const string MinIntensityBackgroundDebugView = "Background model: minimum intensity";
         private const string MaxIntensityBackgroundDebugView = "Background model: maximum intensity";
         private const string MaxPerFrameDifferenceDebugView = "Background model: maximum per frame difference";
+
+        private const string DifferenceDebugView = "Difference";
 
         #endregion
 
@@ -64,25 +75,19 @@ namespace HDE.IpCamClientServer.Server.Core.ImageProcessingHandlers.MovementDete
                 return _amountOfTrainingFramesLeft == 0;
             }
 
-            public void Train(Bitmap grayscaleFrame)
+            public void Train(byte[] grayScaleHW, int width, int height, int stride)
             {
                 if (IsOperational())
                 {
                     throw new InvalidDataException("Model is operational.");
                 }
                 _amountOfTrainingFramesLeft--;
-                
-                var bounds = new Rectangle(0, 0, grayscaleFrame.Width, grayscaleFrame.Height);
-                BitmapData bitmapData = grayscaleFrame.LockBits(bounds, ImageLockMode.ReadOnly, grayscaleFrame.PixelFormat);
-                var grayScaleHW = new byte[grayscaleFrame.Height * bitmapData.Stride];
-                Marshal.Copy(bitmapData.Scan0, grayScaleHW, 0, grayscaleFrame.Height * bitmapData.Stride);
-                _stride = bitmapData.Stride;
-                grayscaleFrame.UnlockBits(bitmapData);
+
+                _stride = stride;
+                _width = width;
+                _height = height;
 
                 _trainingDataNHW[_amountOfTrainingFramesLeft] = grayScaleHW;
-
-                _width = grayscaleFrame.Width;
-                _height = grayscaleFrame.Height;
 
                 if (_minIntensity == null)
                 {
@@ -185,9 +190,13 @@ namespace HDE.IpCamClientServer.Server.Core.ImageProcessingHandlers.MovementDete
         {
             return new []
                        {
-                           MinIntensityBackgroundDebugView, 
-                           MaxIntensityBackgroundDebugView, 
-                           MaxPerFrameDifferenceDebugView
+                           InputFrameDebugView,
+
+                           //MinIntensityBackgroundDebugView, 
+                           //MaxIntensityBackgroundDebugView, 
+                           //MaxPerFrameDifferenceDebugView,
+
+                           DifferenceDebugView
                        };
         }
 
@@ -195,37 +204,91 @@ namespace HDE.IpCamClientServer.Server.Core.ImageProcessingHandlers.MovementDete
         {
             base.Configure(configurationString);
 
-            if (configurationString.Contains(";DEBUG;"))
-            {
-                //_backgroundModel.Initialize(100);
-                //_backgroundModel.Initialize(900);//TEST
-                _backgroundModel.Initialize(4);
-            }
-            else
-            {
-                _backgroundModel.Initialize(80 * 25);
-            }
+            var settings = configurationString
+                .Split(new[] {";"}, StringSplitOptions.RemoveEmptyEntries)
+                .Select(item => item.Split(new[] {"="}, StringSplitOptions.RemoveEmptyEntries))
+                .ToDictionary(item=>item[0], item=> item.Length > 1 ? item[1] : null);
+
+            _backgroundModel.Initialize(int.Parse(settings["TrainingFrames"], CultureInfo.InvariantCulture));
+
+            _k = int.Parse(settings["K"], CultureInfo.InvariantCulture);
         }
 
         protected override string ProcessInternal(Bitmap bitmap)
         {
-            //using (new ProfilerScene())
             using (var grayScaleImage = GrayScaleImageHelper.ToGrayScale(bitmap))
             {
+                var bounds = new Rectangle(0, 0, grayScaleImage.Width, grayScaleImage.Height);
+                BitmapData bitmapData = grayScaleImage.LockBits(bounds, ImageLockMode.ReadOnly, grayScaleImage.PixelFormat);
+                var grayScaleHW = new byte[grayScaleImage.Height * bitmapData.Stride];
+                Marshal.Copy(bitmapData.Scan0, grayScaleHW, 0, grayScaleImage.Height * bitmapData.Stride);
+                var stride = bitmapData.Stride;
+                grayScaleImage.UnlockBits(bitmapData);
+
                 if (!_backgroundModel.IsOperational())
                 {
-                    _backgroundModel.Train(grayScaleImage);
+                    _backgroundModel.Train(grayScaleHW, grayScaleImage.Width, grayScaleImage.Height, stride);
+                    
+                    if (_backgroundModel.IsOperational())
+                    {
+                        _interceptor.Intercept(MinIntensityBackgroundDebugView, GrayScaleImageHelper.FromData2(_backgroundModel._width, _backgroundModel._height, _backgroundModel._stride, _backgroundModel._minIntensity));
+                        _interceptor.Intercept(MaxIntensityBackgroundDebugView, GrayScaleImageHelper.FromData2(_backgroundModel._width, _backgroundModel._height, _backgroundModel._stride, _backgroundModel._maxIntensity));
+                        _interceptor.Intercept(MaxPerFrameDifferenceDebugView, GrayScaleImageHelper.FromData2(_backgroundModel._width, _backgroundModel._height, _backgroundModel._stride, _backgroundModel._maxPerFrameDifference));
+                    }
+
                     return null;
                 }
 
-                while (true)
-                {
-                    _interceptor.Intercept(MinIntensityBackgroundDebugView, GrayScaleImageHelper.FromData2(_backgroundModel._width, _backgroundModel._height, _backgroundModel._stride, _backgroundModel._minIntensity));
-                    _interceptor.Intercept(MaxIntensityBackgroundDebugView, GrayScaleImageHelper.FromData2(_backgroundModel._width, _backgroundModel._height, _backgroundModel._stride, _backgroundModel._maxIntensity));
-                    _interceptor.Intercept(MaxPerFrameDifferenceDebugView, GrayScaleImageHelper.FromData2(_backgroundModel._width, _backgroundModel._height, _backgroundModel._stride, _backgroundModel._maxPerFrameDifference));
-                }
+                int amountOfWhitePixels;
+                var foreground = GetForefround(grayScaleHW, grayScaleImage.Width, grayScaleImage.Height, stride, out amountOfWhitePixels);
+                _interceptor.Intercept(InputFrameDebugView, GrayScaleImageHelper.FromData2(_backgroundModel._width, _backgroundModel._height, _backgroundModel._stride, grayScaleHW));
+                _interceptor.Intercept(DifferenceDebugView, GrayScaleImageHelper.FromData2(_backgroundModel._width, _backgroundModel._height, _backgroundModel._stride, foreground));
             }
             return null;
+        }
+
+        private byte[] GetForefround(
+            byte[] grayScaleHW,
+            int width,
+            int height,
+            int stride,
+            out int amountOfBlackPixels)
+        {
+            amountOfBlackPixels = 0;
+            var foregroundHW = new byte[grayScaleHW.Length];
+            for (int widthI = 0; widthI < width; widthI++)
+            {
+                for (int heightI = 0; heightI < height; heightI++)
+                {
+                    var position = GrayScaleImageHelper.ToDataPosition(widthI, heightI, stride);
+                    var threshold = _k * _backgroundModel._maxPerFrameDifference[position];
+                    var pixel = grayScaleHW[position];
+                    foregroundHW[position] = byte.MaxValue;
+
+                    if (_backgroundModel._minIntensity[position] - threshold <= pixel &&
+                            pixel <= _backgroundModel._maxIntensity[position] + threshold)
+                    {
+                        foregroundHW[position] = byte.MaxValue; // white
+                    }
+
+                    else
+                    {
+                        //if (Math.Abs(pixel - _backgroundModel._minIntensity[position]) <= threshold ||
+                        //    Math.Abs(pixel - _backgroundModel._maxIntensity[position]) <= threshold)
+                        //{
+                        //    foregroundHW[position] = byte.MaxValue; // white
+                        //}
+                        //else/* if (pixel > (_backgroundModel._minIntensity[position] - threshold) &&
+                        //    pixel < (_backgroundModel._maxIntensity[position] + threshold))*/
+                        //{
+                            foregroundHW[position] = byte.MinValue;
+                            amountOfBlackPixels++;
+                        //}
+                    }
+
+                }
+            }
+            return foregroundHW;
         }
     }
 }
