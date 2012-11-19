@@ -37,6 +37,7 @@ namespace HDE.IpCamClientServer.Server.ServerC.Controller
                 windowNo++;
                 var thread = new Thread(OnPerformThreadJob);
                 thread.SetApartmentState(ApartmentState.STA);
+                thread.IsBackground = true;
                 _threads.Add(thread);
                 _imageSources.Add(key, new ImageSource());
                 thread.Start(new ThreadTask(windowNo, key, _imageSources[key]));
@@ -51,7 +52,13 @@ namespace HDE.IpCamClientServer.Server.ServerC.Controller
         {
             if (_debugViews.ContainsKey(key))
             {
-                _imageSources[key].NewFrameReceived(this, new NewFrameEventArgs(image));
+                try
+                {
+                    _imageSources[key].NewFrameReceived(this, new NewFrameEventArgs(image));
+                }
+                catch (NullReferenceException) // user closed window
+                {
+                }
             }
 /* Yes, there're no memory leaks (but .Net usually blocks)
             GC.Collect();
@@ -84,10 +91,10 @@ namespace HDE.IpCamClientServer.Server.ServerC.Controller
                 thread.Abort();
             }
 
-            foreach (var item in _debugViews)
-            {
-                item.Value.Dispose();
-            }
+            //foreach (var item in _debugViews)
+            //{
+            //    item.Value.Dispose();
+            //}
         }
 
         #endregion

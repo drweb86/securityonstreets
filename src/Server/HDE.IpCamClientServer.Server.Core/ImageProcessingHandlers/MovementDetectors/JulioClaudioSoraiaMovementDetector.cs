@@ -5,6 +5,8 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
+using AForge.Imaging;
+using AForge.Imaging.Filters;
 using HDE.IpCamClientServer.Server.Core.ImageProcessingHandlers.Gray;
 
 namespace HDE.IpCamClientServer.Server.Core.ImageProcessingHandlers.MovementDetectors
@@ -120,22 +122,22 @@ namespace HDE.IpCamClientServer.Server.Core.ImageProcessingHandlers.MovementDete
                     {
                         var position = GrayScaleImageHelper.ToDataPosition(widthI, heightI, _stride);
 
-                        long medium = 0;
-                        long disperce = 0;
+                        double medium = 0;
+                        double disperce = 0;
                         for (int frameNo = 0; frameNo < _amountOfTrainingFrames; frameNo++)
                         {
                             medium += _trainingDataNHW[frameNo][position];
                         }
-                        medium = medium / _amountOfTrainingFrames;
+                        medium = (1.0*medium) / _amountOfTrainingFrames;
 
                         for (int frameNo = 0; frameNo < _amountOfTrainingFrames; frameNo++)
                         {
                             disperce += Math.Abs(_trainingDataNHW[frameNo][position] - medium);
                         }
-                        disperce = disperce / _amountOfTrainingFrames;
+                        disperce = (1.0*disperce) / _amountOfTrainingFrames;
 
-                        var minIntensity = byte.MaxValue;
-                        var maxIntensity = byte.MinValue;
+                        var minIntensity = -1;
+                        var maxIntensity = -1;
                         var maxPerFrameDifference = byte.MinValue;
 
                         int previousTrainingValue = -1;
@@ -144,11 +146,13 @@ namespace HDE.IpCamClientServer.Server.Core.ImageProcessingHandlers.MovementDete
                             var val = _trainingDataNHW[frameNo][position];
                             if (Math.Abs(val - medium) <= 2 * disperce)
                             {
-                                if (val < minIntensity)
+                                if (minIntensity == -1 ||
+                                    val < minIntensity)
                                 {
                                     minIntensity = val;
                                 }
-                                if (val > maxIntensity)
+                                if (maxIntensity == -1 ||
+                                    val > maxIntensity)
                                 {
                                     maxIntensity = val;
                                 }
@@ -165,8 +169,8 @@ namespace HDE.IpCamClientServer.Server.Core.ImageProcessingHandlers.MovementDete
                             }
                         }
 
-                        _minIntensity[position] = minIntensity;
-                        _maxIntensity[position] = maxIntensity;
+                        _minIntensity[position] = (byte)minIntensity;
+                        _maxIntensity[position] = (byte)maxIntensity;
                         _maxPerFrameDifference[position] = maxPerFrameDifference;
                     }
                 }
@@ -214,10 +218,17 @@ namespace HDE.IpCamClientServer.Server.Core.ImageProcessingHandlers.MovementDete
             _k = int.Parse(settings["K"], CultureInfo.InvariantCulture);
         }
 
+        protected virtual void PreprocessFrame(Bitmap bitmap)
+        {
+
+        }
+
         protected override string ProcessInternal(Bitmap bitmap)
         {
             using (var grayScaleImage = GrayScaleImageHelper.ToGrayScale(bitmap))
             {
+                PreprocessFrame(grayScaleImage);
+                
                 var bounds = new Rectangle(0, 0, grayScaleImage.Width, grayScaleImage.Height);
                 BitmapData bitmapData = grayScaleImage.LockBits(bounds, ImageLockMode.ReadOnly, grayScaleImage.PixelFormat);
                 var grayScaleHW = new byte[grayScaleImage.Height * bitmapData.Stride];
@@ -241,8 +252,25 @@ namespace HDE.IpCamClientServer.Server.Core.ImageProcessingHandlers.MovementDete
 
                 int amountOfWhitePixels;
                 var foreground = GetForefround(grayScaleHW, grayScaleImage.Width, grayScaleImage.Height, stride, out amountOfWhitePixels);
+
+
+                var temp = GrayScaleImageHelper.FromData(
+                _backgroundModel._width,
+                _backgroundModel._height,
+                _backgroundModel._stride,
+                foreground);
+                var bc = new BlobCounter(temp) {ObjectsOrder = ObjectsOrder.Size};
+                var objects = bc.GetObjects(temp, false);
+                var countDetected = objects.Count(item => item.Rectangle.Height > 4 && item.Rectangle.Width > 4);
+                
                 _interceptor.Intercept(InputFrameDebugView, GrayScaleImageHelper.FromData2(_backgroundModel._width, _backgroundModel._height, _backgroundModel._stride, grayScaleHW));
                 _interceptor.Intercept(DifferenceDebugView, GrayScaleImageHelper.FromData2(_backgroundModel._width, _backgroundModel._height, _backgroundModel._stride, foreground));
+
+                if (countDetected > 0)
+                {
+                    return "Alarm: " + countDetected;
+                }
+
             }
             return null;
         }
@@ -273,19 +301,9 @@ namespace HDE.IpCamClientServer.Server.Core.ImageProcessingHandlers.MovementDete
 
                     else
                     {
-                        //if (Math.Abs(pixel - _backgroundModel._minIntensity[position]) <= threshold ||
-                        //    Math.Abs(pixel - _backgroundModel._maxIntensity[position]) <= threshold)
-                        //{
-                        //    foregroundHW[position] = byte.MaxValue; // white
-                        //}
-                        //else/* if (pixel > (_backgroundModel._minIntensity[position] - threshold) &&
-                        //    pixel < (_backgroundModel._maxIntensity[position] + threshold))*/
-                        //{
-                            foregroundHW[position] = byte.MinValue;
-                            amountOfBlackPixels++;
-                        //}
+                        foregroundHW[position] = byte.MinValue;
+                        amountOfBlackPixels++;
                     }
-
                 }
             }
             return foregroundHW;

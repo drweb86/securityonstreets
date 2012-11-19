@@ -28,7 +28,7 @@ namespace HDE.IpCamClientServer.Server.ServerC.Model
                 SettingsFileLocator.LocateConfigurationFolder(),
                 "HDE.IpCamClientServer.Server.ServerC.xml");
 
-            MovementDetection = new JulioClaudioSoraiaMovementDetector(interceptor);
+            MovementDetection = new SiarheiKuchukMovementDetector(interceptor);
             interceptor.Initialize(MovementDetection.GetDebugWindows());
             MovementDetection.Configure(ConfigurationSettings.AppSettings["MovementDetector.Parameters"]);
         }

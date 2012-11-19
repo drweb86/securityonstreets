@@ -104,6 +104,7 @@
     <Compile Include="ImageProcessingHandlers\ImageHelper.cs" />
     <Compile Include="ImageProcessingHandlers\MovementDetectors\JulioClaudioSoraiaMovementDetector.cs" />
     <Compile Include="ImageProcessingHandlers\MovementDetectors\MovementDetectorBase.cs" />
+    <Compile Include="ImageProcessingHandlers\MovementDetectors\SiarheiKuchukMovementDetector.cs" />
     <Compile Include="ImageProcessingHandlers\MovementHandler.cs" />
     <Compile Include="ImageProcessingHandlers\NullInterceptor.cs" />
     <Compile Include="ImageProcessingHandlers\MovementDetectors\SpagnoloMovementDetector.cs" />

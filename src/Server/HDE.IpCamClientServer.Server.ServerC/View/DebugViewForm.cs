@@ -74,6 +74,7 @@ namespace HDE.IpCamClientServer.Server.ServerC.View
 
                 BackgroundImage = imageImg;
             }
+            Application.DoEvents();
         }
         
         private void OnFormClosing(object sender, FormClosingEventArgs e)
@@ -86,5 +87,10 @@ namespace HDE.IpCamClientServer.Server.ServerC.View
         }
 
         #endregion
+
+        private void OnTimerTick(object sender, EventArgs e)
+        {
+            Application.DoEvents();
+        }
     }
 }
