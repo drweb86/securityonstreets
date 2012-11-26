@@ -5,5 +5,6 @@ namespace HDE.IpCamClientServer.Server.ServerC.Controller
     class ImageSource
     {
         public EventHandler<NewFrameEventArgs> NewFrameReceived;
+        public EventHandler<EventArgs> DisposeRequested;
     }
 }

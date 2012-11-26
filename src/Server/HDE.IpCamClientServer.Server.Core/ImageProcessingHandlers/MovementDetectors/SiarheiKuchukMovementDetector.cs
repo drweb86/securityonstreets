@@ -1,21 +1,23 @@
-using AForge.Imaging.Filters;
+using HDE.IpCamClientServer.Server.Core.ImageProcessingHandlers.Gray;
 
 namespace HDE.IpCamClientServer.Server.Core.ImageProcessingHandlers.MovementDetectors
 {
     public class SiarheiKuchukMovementDetector : JulioClaudioSoraiaMovementDetector
     {
-        // 2; 3 - perfect //6 -more good //12-very good 30-bad
-        private SaltAndPepperNoise _noize = new SaltAndPepperNoise(2);
-
         public SiarheiKuchukMovementDetector(IInterceptor interceptor) : base(interceptor)
         {
         }
 
-        protected override void PreprocessFrame(System.Drawing.Bitmap bitmap)
+        protected override void InitializeBackgroundModel(int trainingFrames)
+        {
+            _backgroundModel.Initialize(trainingFrames, (byte)_k, true);
+        }
+
+        protected override void PreprocessFrame(byte[] dataHW, int stride, int width, int height)
         {
             if (!_backgroundModel.IsOperational())
             {
-                _noize.ApplyInPlace(bitmap);
+                GrayScaleImageHelper.ApplySaltAndPapperNoise(2, dataHW, stride, width, height);
             }
         }
     }

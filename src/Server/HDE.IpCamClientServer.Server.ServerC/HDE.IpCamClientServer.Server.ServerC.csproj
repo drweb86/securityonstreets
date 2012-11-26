@@ -112,7 +112,12 @@
     <Compile Include="View\DebugViewForm.Designer.cs">
       <DependentUpon>DebugViewForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="View\IDebugView.cs" />
+    <Compile Include="View\DebugViewHostForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="View\DebugViewHostForm.Designer.cs">
+      <DependentUpon>DebugViewHostForm.cs</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Common\HDE.IpCamClientServer.Common\HDE.IpCamClientServer.Common.csproj">
@@ -136,6 +141,9 @@
   <ItemGroup>
     <EmbeddedResource Include="View\DebugViewForm.resx">
       <DependentUpon>DebugViewForm.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="View\DebugViewHostForm.resx">
+      <DependentUpon>DebugViewHostForm.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
