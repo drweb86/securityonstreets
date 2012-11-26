@@ -7,6 +7,12 @@ namespace HDE.IpCamClientServer.Server.Core.ImageProcessingHandlers
 {
     public static class ArrayHelper
     {
+        public static byte GetMedian(byte[] bytes)
+        {
+            Array.Sort(bytes);
+            return bytes[bytes.Length/2];
+        }
+
         public static bool Compare(byte[,] a, byte[,] b, int thethhold)
         {
             if (a.GetLength(0) != b.GetLength(0) ||

@@ -1,6 +1,6 @@
 ﻿namespace HDE.IpCamClientServer.Server.ServerC.View
 {
-    partial class DebugViewForm
+    partial class DebugViewHostForm
     {
         /// <summary>
         /// Required designer variable.
@@ -30,22 +30,19 @@
         {
             this.SuspendLayout();
             // 
-            // DebugViewForm
+            // DebugViewHostForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None;
-            this.ClientSize = new System.Drawing.Size(562, 415);
-            this.DoubleBuffered = true;
-            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedToolWindow;
-            this.Name = "DebugViewForm";
-            this.StartPosition = System.Windows.Forms.FormStartPosition.Manual;
-            this.Text = "DebugViewForm";
+            this.ClientSize = new System.Drawing.Size(284, 262);
+            this.IsMdiContainer = true;
+            this.Name = "DebugViewHostForm";
+            this.Text = "Data is being collected, please wait...";
+            this.WindowState = System.Windows.Forms.FormWindowState.Maximized;
             this.ResumeLayout(false);
 
         }
 
         #endregion
-
     }
 }
