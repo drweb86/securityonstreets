@@ -14,6 +14,18 @@ namespace HDE.IpCamClientServer.Server.Core.ImageProcessingHandlers.Gray
     /// </summary>
     public static class GrayScaleImageHelper
     {
+        public static void Invert(byte[] dataHW, int stride, int width, int height)
+        {
+            for (int widthI = 0; widthI < width; widthI++)
+            {
+                for (int heightI = 0; heightI < height; heightI++)
+                {
+                    var position = ToDataPosition(widthI, heightI, stride);
+                    dataHW[position] = (byte)(byte.MaxValue - dataHW[position]);
+                }
+            }
+        }
+
         public static void ApplySaltAndPapperNoise(int percents, byte[] dataHW, int stride, int width, int height)
         {
             var rand = new Random();
@@ -22,17 +34,7 @@ namespace HDE.IpCamClientServer.Server.Core.ImageProcessingHandlers.Gray
                 dataHW[ToDataPosition(rand.Next(width), rand.Next(height), stride)] = (byte)rand.Next(2);
             }
         }
-
-        public static void FatSkeleton(int percents, byte[] dataHW, int stride, int width, int height)
-        {
-            new AForge.Imaging.Filters.SimpleSkeletonization().
-            var rand = new Random();
-            for (int i = 0; i < (double)(width * height) * percents / 100.0; i++)
-            {
-                dataHW[ToDataPosition(rand.Next(width), rand.Next(height), stride)] = (byte)rand.Next(2);
-            }
-        }
-
+        
         /// <summary>
         /// Calculates mean intensity of pixel.
         /// Variance is calculated as Absolute Deviation
