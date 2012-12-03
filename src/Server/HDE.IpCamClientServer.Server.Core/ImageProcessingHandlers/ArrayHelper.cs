@@ -1,12 +1,24 @@
 using System;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Text;
 
 namespace HDE.IpCamClientServer.Server.Core.ImageProcessingHandlers
 {
     public static class ArrayHelper
     {
+        public static double GetStandardDeviation(double[] data)
+        {
+            if (data.Length == 0)
+            {
+                return 0;
+            }
+
+            var average = data.Average();
+            return data.Sum(item => Math.Abs(item - average))/data.Length;
+        }
+
         public static byte GetMedian(byte[] bytes)
         {
             Array.Sort(bytes);
@@ -75,6 +87,14 @@ namespace HDE.IpCamClientServer.Server.Core.ImageProcessingHandlers
                 }
             }
             File.WriteAllText(file, builder.ToString());
+        }
+
+        public static void SetToAll<TData>(TData[] energyBackground, TData defaultValue)
+        {
+            for (int i = 0; i < energyBackground.Length; i++)
+            {
+                energyBackground[i] = defaultValue;
+            }
         }
     }
 }

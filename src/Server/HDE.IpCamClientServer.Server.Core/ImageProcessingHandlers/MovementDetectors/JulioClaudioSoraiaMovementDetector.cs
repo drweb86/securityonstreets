@@ -31,6 +31,7 @@ namespace HDE.IpCamClientServer.Server.Core.ImageProcessingHandlers.MovementDete
         private const string MinIntensityBackgroundDebugView = "Background model: minimum intensity";
         private const string MaxIntensityBackgroundDebugView = "Background model: maximum intensity";
         private const string MaxPerFrameDifferenceDebugView = "Background model: maximum per frame difference";
+        private const string XXX = "XXX";
 
         private const string DifferenceDebugView = "Difference";
 
@@ -38,6 +39,13 @@ namespace HDE.IpCamClientServer.Server.Core.ImageProcessingHandlers.MovementDete
         private int _minimumDetectionHeightPixels;
         private int _maximumDetectionWidthPixels;
         private int _maximumDetectionHeightPixels;
+
+        private int _regionFrameSizeDivided2;
+        private int _regionProveShadowDivided2;
+        private int _borderDivided2;
+        private double _Llow;
+        private double _Lstd;
+        private double _Lncc;
 
         #endregion
 
@@ -54,13 +62,28 @@ namespace HDE.IpCamClientServer.Server.Core.ImageProcessingHandlers.MovementDete
             #region Fields
 
             private bool _siarheiKuchuk;
+
+            #region Background Substraction Related
+
             internal byte[] _minIntensity;
             internal byte[] _maxIntensity;
             internal byte[] _maxPerFrameDifference;
 
+            #endregion
+
+            #region Shadow Elimination Related
+
+            internal byte[] _averageBackground;
+            internal double[] _energyBackground;
+
+            #endregion
+
+
             private byte[][] _trainingDataNHW;
             private int _amountOfTrainingFrames;
             private int _amountOfTrainingFramesLeft = -1;
+
+            private int _regionFrameSizeDivided2;
 
             internal int _width;
             internal int _height;
@@ -70,15 +93,26 @@ namespace HDE.IpCamClientServer.Server.Core.ImageProcessingHandlers.MovementDete
 
             #region Public Methods
 
-            public void Initialize(int amountOfTrainingFrames, byte dk, bool siarheiKuchuk)
+            public void Initialize(
+                int amountOfTrainingFrames, 
+                int regionFrameSizeDivided2,
+                byte dk, 
+                bool siarheiKuchuk)
             {
                 if (amountOfTrainingFrames < 2)
                 {
                     throw new ArgumentOutOfRangeException("amountOfTrainingFrames");
                 }
+
+                if (regionFrameSizeDivided2 < 2)
+                {
+                    throw new ArgumentOutOfRangeException("regionFrameSizeDivided2");
+                }
+
                 _siarheiKuchuk = siarheiKuchuk;
                 _amountOfTrainingFrames = amountOfTrainingFrames;
                 _amountOfTrainingFramesLeft = amountOfTrainingFrames;
+                _regionFrameSizeDivided2 = regionFrameSizeDivided2;
                 _trainingDataNHW = new byte[_amountOfTrainingFrames][];
                 _minIntensity = null;
                 _maxIntensity = null;
@@ -118,6 +152,16 @@ namespace HDE.IpCamClientServer.Server.Core.ImageProcessingHandlers.MovementDete
                     _maxPerFrameDifference = new byte[grayScaleHW.Length];
                 }
 
+                if (_averageBackground == null)
+                {
+                    _averageBackground = new byte[grayScaleHW.Length];
+                }
+
+                if (_energyBackground == null)
+                {
+                    _energyBackground = new double[grayScaleHW.Length];
+                }
+
                 if (_amountOfTrainingFramesLeft == 0)
                 {
                     CalculateInitialBackgroundModelState();
@@ -127,6 +171,34 @@ namespace HDE.IpCamClientServer.Server.Core.ImageProcessingHandlers.MovementDete
             #endregion
 
             #region Private Methods
+
+            private void CalculateEnergyBackground()
+            {
+                ArrayHelper.SetToAll(_energyBackground, 0);
+                for (int widthI = _regionFrameSizeDivided2; widthI < (_width - _regionFrameSizeDivided2 - 1); widthI++)
+                {
+                    for (int heightI = _regionFrameSizeDivided2; heightI < (_height - _regionFrameSizeDivided2 - 1); heightI++)
+                    {
+                        long result = 0;
+
+                        for (
+                             int regionWidthI = (widthI - _regionFrameSizeDivided2); 
+                             regionWidthI < (widthI + _regionFrameSizeDivided2 + 1);
+                             regionWidthI++)
+                        {
+                            for (
+                             int regionHeightI = (heightI - _regionFrameSizeDivided2); 
+                             regionHeightI < (heightI + _regionFrameSizeDivided2 + 1);
+                             regionHeightI++)
+                            {
+                                result += _averageBackground[GrayScaleImageHelper.ToDataPosition(regionWidthI, regionHeightI, _stride)];
+                            }
+                        }
+
+                        _energyBackground[GrayScaleImageHelper.ToDataPosition(widthI, heightI, _stride)] = Math.Sqrt(result);
+                    }
+                }
+            }
 
             private void CalculateInitialBackgroundModelState()
             {
@@ -155,6 +227,8 @@ namespace HDE.IpCamClientServer.Server.Core.ImageProcessingHandlers.MovementDete
                             }
                             medium = ArrayHelper.GetMedian(list.ToArray());
                         }
+
+                        _averageBackground[position] = (byte)medium;
 
                         for (int frameNo = 0; frameNo < _amountOfTrainingFrames; frameNo++)
                         {
@@ -211,6 +285,8 @@ namespace HDE.IpCamClientServer.Server.Core.ImageProcessingHandlers.MovementDete
                     }
                 }
 
+                CalculateEnergyBackground();
+
                 DumpTrainingData();
 
                 _trainingDataNHW = null;
@@ -254,7 +330,7 @@ namespace HDE.IpCamClientServer.Server.Core.ImageProcessingHandlers.MovementDete
                            MinIntensityBackgroundDebugView, 
                            MaxIntensityBackgroundDebugView, 
                            MaxPerFrameDifferenceDebugView,
-
+                           XXX,
                            DifferenceDebugView
                        };
         }
@@ -269,16 +345,24 @@ namespace HDE.IpCamClientServer.Server.Core.ImageProcessingHandlers.MovementDete
                 .ToDictionary(item=>item[0], item=> item.Length > 1 ? item[1] : null);
 
             _k = int.Parse(settings["K"], CultureInfo.InvariantCulture);
-            InitializeBackgroundModel(int.Parse(settings["TrainingFrames"], CultureInfo.InvariantCulture));
+            InitializeBackgroundModel(
+                int.Parse(settings["TrainingFrames"], CultureInfo.InvariantCulture),
+                int.Parse(settings["N"], CultureInfo.InvariantCulture));
             _minimumDetectionWidthPixels = int.Parse(settings["MinimumDetectionWidthPixels"], CultureInfo.InvariantCulture);
             _minimumDetectionHeightPixels = int.Parse(settings["MinimumDetectionHeightPixels"], CultureInfo.InvariantCulture);
             _maximumDetectionWidthPixels = int.Parse(settings["MaximumDetectionWidthPixels"], CultureInfo.InvariantCulture);
             _maximumDetectionHeightPixels = int.Parse(settings["MaximumDetectionHeightPixels"], CultureInfo.InvariantCulture);
+            _regionFrameSizeDivided2 = int.Parse(settings["N"], CultureInfo.InvariantCulture);
+            _regionProveShadowDivided2 = int.Parse(settings["M"], CultureInfo.InvariantCulture)*2;
+            _borderDivided2 = Math.Max(_regionFrameSizeDivided2, _regionProveShadowDivided2);
+            _Llow = double.Parse(settings["Llow"], CultureInfo.InvariantCulture);
+            _Lstd = double.Parse(settings["Lstd"], CultureInfo.InvariantCulture);
+            _Lncc = double.Parse(settings["Lncc"], CultureInfo.InvariantCulture);
         }
 
-        protected virtual void InitializeBackgroundModel(int trainingFrames)
+        protected virtual void InitializeBackgroundModel(int trainingFrames, int regionFrameSizeDivided2)
         {
-            _backgroundModel.Initialize(trainingFrames, 2, false);
+            _backgroundModel.Initialize(trainingFrames, regionFrameSizeDivided2, 2, false);
         }
 
         protected virtual void PreprocessFrame(byte[] dataHW, int stride, int width, int height)
@@ -315,19 +399,33 @@ namespace HDE.IpCamClientServer.Server.Core.ImageProcessingHandlers.MovementDete
 
                 var foreground = GetForefround(grayScaleHW, grayScaleImage.Width, grayScaleImage.Height, stride);
 
+                //excluded, because does not work.
+                //ExcludeShadows(grayScaleHW, foreground, grayScaleImage.Width, grayScaleImage.Height, stride);
+
                 var temp = GrayScaleImageHelper.FromData(
-                _backgroundModel._width,
-                _backgroundModel._height,
-                _backgroundModel._stride,
-                foreground);
+                    _backgroundModel._width,
+                    _backgroundModel._height,
+                    _backgroundModel._stride,
+                    foreground);
 
                 int countDetected = 0;
-//TODO: increase
-//TODO: decrease
-//TODO: !
-                //// skelet!
-                //var skelet = new SimpleSkeletonization {Background = byte.MinValue, Foreground = byte.MaxValue};
-                //skelet.ApplyInPlace(temp);
+                // create filter
+                var diamondMask = new short[,]
+                                      {
+                                          {-1, -1, +1, -1, -1},
+                                          {-1, +1, +1, +1, -1},
+                                          {+1, +1, +1, +1, +1},
+                                          {-1, +1, +1, +1, -1},
+                                          {-1, -1, +1, -1, -1},
+                                      };
+                Closing filter = new Closing(diamondMask);
+                Opening filter2 = new Opening(diamondMask);
+                // apply the filter
+                filter.ApplyInPlace(temp);
+                filter2.ApplyInPlace(temp);
+                _interceptor.Intercept(
+                    XXX, 
+                    ImageHelper.ToBytes(temp));
 
                 // blobs!
                 var bc = new BlobCounter {BackgroundThreshold = Color.FromArgb(254, 254, 254)};
@@ -344,6 +442,7 @@ namespace HDE.IpCamClientServer.Server.Core.ImageProcessingHandlers.MovementDete
                         countDetected++;
                     }
                 }
+                temp.Dispose();
                 
                 _interceptor.Intercept(InputFrameDebugView, GrayScaleImageHelper.FromData2(_backgroundModel._width, _backgroundModel._height, _backgroundModel._stride, grayScaleHW));
                 _interceptor.Intercept(DifferenceDebugView, GrayScaleImageHelper.FromData2(_backgroundModel._width, _backgroundModel._height, _backgroundModel._stride, foreground));
@@ -356,6 +455,88 @@ namespace HDE.IpCamClientServer.Server.Core.ImageProcessingHandlers.MovementDete
             }
             return null;
         }
+
+        private void ExcludeShadows(byte[] frame, byte[] foreground, int width, int height, int stride)
+        {
+            for (int widthI = _borderDivided2; widthI < (width - _borderDivided2 - 1); widthI++)
+            {
+                for (int heightI = _borderDivided2; heightI < (height - _borderDivided2 - 1); heightI++)
+                {
+                    var pos = GrayScaleImageHelper.ToDataPosition(widthI, heightI, stride);
+                    if (foreground[pos] == _foregroundPixel &&
+                        CheckProveShadow3(frame[pos], _backgroundModel._averageBackground[pos]) &&
+                        CheckProveShadow2(frame, widthI, heightI, stride) &&
+                        CheckProveShadowOriginal(frame, widthI, heightI, stride))
+                    {
+                        foreground[pos] = _backgroundPixel;
+                    }
+                }
+            }
+        }
+
+        private bool CheckProveShadowOriginal(byte[] frame, int widthI, int heightI, int stride)
+        {
+            double er = 0;
+            double eb = _backgroundModel._energyBackground[GrayScaleImageHelper.ToDataPosition(widthI, heightI, stride)];
+            double et = 0;
+            for (int regionWidthI = widthI - _regionFrameSizeDivided2;
+                regionWidthI < (widthI + _regionFrameSizeDivided2 + 1);
+                regionWidthI++)
+            {
+
+                for (
+                    int regionHeightI = (heightI - _regionFrameSizeDivided2);
+                    regionHeightI < (heightI + _regionFrameSizeDivided2 + 1);
+                    regionHeightI++)
+                {
+                    var posCheckRegion = GrayScaleImageHelper.ToDataPosition(regionWidthI, regionHeightI, stride);
+                    er += _backgroundModel._averageBackground[posCheckRegion] * frame[posCheckRegion];
+                    et += frame[posCheckRegion]*frame[posCheckRegion];
+                }
+            }
+            et = Math.Sqrt(et);
+
+            var ncc = er/(eb*et);
+            return ncc > _Lncc && et < eb;
+        }
+
+        private bool CheckProveShadow2(byte[] frame, int widthI, int heightI, int stride)
+        {
+            var standardDeviationOfRegion = new List<double>();
+
+            for (int regionWidthI = widthI - _regionProveShadowDivided2;
+                regionWidthI < (widthI + _regionProveShadowDivided2 + 1);
+                regionWidthI++)
+            {
+                for (
+                    int regionHeightI = (heightI - _regionProveShadowDivided2);
+                    regionHeightI < (heightI + _regionProveShadowDivided2 + 1);
+                    regionHeightI++)
+                {
+                    var posCheckRegion = GrayScaleImageHelper.ToDataPosition(regionWidthI, regionHeightI, stride);
+                    if (_backgroundModel._averageBackground[posCheckRegion] != 0)
+                    {
+                        standardDeviationOfRegion.Add((double)frame[posCheckRegion] / _backgroundModel._averageBackground[posCheckRegion]);
+                    }
+                }
+            }
+
+            var deviation = ArrayHelper.GetStandardDeviation(standardDeviationOfRegion.ToArray());
+            return deviation < _Lstd;
+        }
+
+        private bool CheckProveShadow3(byte foreground, byte background)
+        {
+            if (background == 0)
+            {
+                return false;
+            }
+            var divided = ((double)foreground)/background;
+            return (divided < 1 && divided >= _Llow);
+        }
+
+        private byte _backgroundPixel = byte.MinValue;
+        private byte _foregroundPixel = byte.MaxValue;
 
         private byte[] GetForefround(
             byte[] grayScaleHW,
@@ -376,12 +557,12 @@ namespace HDE.IpCamClientServer.Server.Core.ImageProcessingHandlers.MovementDete
                     if (_backgroundModel._minIntensity[position] - threshold <= pixel &&
                             pixel <= _backgroundModel._maxIntensity[position] + threshold)
                     {
-                        foregroundHW[position] = byte.MinValue; // white
+                        foregroundHW[position] = _backgroundPixel; // white
                     }
 
                     else
                     {
-                        foregroundHW[position] = byte.MaxValue;
+                        foregroundHW[position] = _foregroundPixel;
                     }
                 }
             }

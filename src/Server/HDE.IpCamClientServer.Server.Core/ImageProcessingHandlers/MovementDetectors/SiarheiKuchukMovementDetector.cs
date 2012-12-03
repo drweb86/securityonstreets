@@ -8,9 +8,9 @@ namespace HDE.IpCamClientServer.Server.Core.ImageProcessingHandlers.MovementDete
         {
         }
 
-        protected override void InitializeBackgroundModel(int trainingFrames)
+        protected override void InitializeBackgroundModel(int trainingFrames, int regionFrameSizeDivided2)
         {
-            _backgroundModel.Initialize(trainingFrames, (byte)_k, true);
+            _backgroundModel.Initialize(trainingFrames, regionFrameSizeDivided2, (byte)_k, true);
         }
 
         protected override void PreprocessFrame(byte[] dataHW, int stride, int width, int height)
