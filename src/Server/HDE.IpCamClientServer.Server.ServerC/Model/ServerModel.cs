@@ -1,9 +1,9 @@
-﻿using System.Configuration;
+﻿using System;
+using System.Configuration;
 using System.IO;
 using System.Threading;
 using HDE.IpCamClientServer.Common;
 using HDE.IpCamClientServer.Server.Core.ImageProcessingHandlers;
-using HDE.IpCamClientServer.Server.Core.ImageProcessingHandlers.MovementDetectors;
 using HDE.IpCamClientServer.Server.Core.Model;
 using HDE.IpCamClientServer.Server.ServerC.Controller;
 
@@ -28,7 +28,10 @@ namespace HDE.IpCamClientServer.Server.ServerC.Model
                 SettingsFileLocator.LocateConfigurationFolder(),
                 "HDE.IpCamClientServer.Server.ServerC.xml");
 
-            MovementDetection = new SiarheiKuchukMovementDetector(interceptor);
+            MovementDetection = (IHandler)Type
+                .GetType(ConfigurationSettings.AppSettings["MovementDetector.Type"])
+                .GetConstructor(new [] { typeof(IInterceptor) })
+                .Invoke(new object[] { interceptor });
             interceptor.Initialize(MovementDetection.GetDebugWindows());
             MovementDetection.Configure(ConfigurationSettings.AppSettings["MovementDetector.Parameters"]);
         }
