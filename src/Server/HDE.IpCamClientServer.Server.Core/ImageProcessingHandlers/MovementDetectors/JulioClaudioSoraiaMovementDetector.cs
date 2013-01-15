@@ -32,6 +32,7 @@ namespace HDE.IpCamClientServer.Server.Core.ImageProcessingHandlers.MovementDete
         private const string MaxIntensityBackgroundDebugView = "Background model: maximum intensity";
         private const string MaxPerFrameDifferenceDebugView = "Background model: maximum per frame difference";
         private const string XXX = "XXX";
+        private const string DetectedBlobDebugView = "Movement Detections";
 
         private const string DifferenceDebugView = "Difference";
 
@@ -327,11 +328,12 @@ namespace HDE.IpCamClientServer.Server.Core.ImageProcessingHandlers.MovementDete
                        {
                            InputFrameDebugView,
 
-                           MinIntensityBackgroundDebugView, 
-                           MaxIntensityBackgroundDebugView, 
-                           MaxPerFrameDifferenceDebugView,
+                           //MinIntensityBackgroundDebugView, 
+                           //MaxIntensityBackgroundDebugView, 
+                           //MaxPerFrameDifferenceDebugView,
                            XXX,
-                           DifferenceDebugView
+                           DifferenceDebugView,
+                           DetectedBlobDebugView
                        };
         }
 
@@ -369,6 +371,19 @@ namespace HDE.IpCamClientServer.Server.Core.ImageProcessingHandlers.MovementDete
         {
 
         }
+
+        protected virtual short[,] CreateClosingOpeningFileter()
+        {
+            return new short[,]
+                {
+                    {-1, -1, +1, -1, -1},
+                    {-1, +1, +1, +1, -1},
+                    {+1, +1, +1, +1, +1},
+                    {-1, +1, +1, +1, -1},
+                    {-1, -1, +1, -1, -1},
+                };
+        }
+
 
         protected override string ProcessInternal(Bitmap bitmap)
         {
@@ -410,14 +425,7 @@ namespace HDE.IpCamClientServer.Server.Core.ImageProcessingHandlers.MovementDete
 
                 int countDetected = 0;
                 // create filter
-                var diamondMask = new short[,]
-                                      {
-                                          {-1, -1, +1, -1, -1},
-                                          {-1, +1, +1, +1, -1},
-                                          {+1, +1, +1, +1, +1},
-                                          {-1, +1, +1, +1, -1},
-                                          {-1, -1, +1, -1, -1},
-                                      };
+                var diamondMask = CreateClosingOpeningFileter();
                 Closing filter = new Closing(diamondMask);
                 Opening filter2 = new Opening(diamondMask);
                 // apply the filter
@@ -432,6 +440,7 @@ namespace HDE.IpCamClientServer.Server.Core.ImageProcessingHandlers.MovementDete
                 bc.ProcessImage(temp);
 
                 Rectangle[] rects = bc.GetObjectsRectangles();
+                var rectanglesToDraw = new List<Rectangle>();
                 foreach (Rectangle rect in rects)
                 {
                     if (rect.Width < _maximumDetectionWidthPixels &&
@@ -440,6 +449,7 @@ namespace HDE.IpCamClientServer.Server.Core.ImageProcessingHandlers.MovementDete
                         rect.Height > _minimumDetectionHeightPixels)
                     {
                         countDetected++;
+                        rectanglesToDraw.Add(rect);
                     }
                 }
                 temp.Dispose();
@@ -447,11 +457,21 @@ namespace HDE.IpCamClientServer.Server.Core.ImageProcessingHandlers.MovementDete
                 _interceptor.Intercept(InputFrameDebugView, GrayScaleImageHelper.FromData2(_backgroundModel._width, _backgroundModel._height, _backgroundModel._stride, grayScaleHW));
                 _interceptor.Intercept(DifferenceDebugView, GrayScaleImageHelper.FromData2(_backgroundModel._width, _backgroundModel._height, _backgroundModel._stride, foreground));
 
+                using (Graphics graphics = Graphics.FromImage(bitmap))
+                using (var brush = new SolidBrush(Color.Red))
+                using (var pen = new Pen(brush, 3))
+                {
+                    if (rectanglesToDraw.Any())
+                    {
+                        graphics.DrawRectangles(pen, rectanglesToDraw.ToArray());
+                    }
+                    _interceptor.Intercept(DetectedBlobDebugView, ImageHelper.ToBytes(bitmap));
+                }
+
                 if (countDetected > 0)
                 {
                     return "Alarm: " + countDetected;
                 }
-
             }
             return null;
         }
