@@ -330,7 +330,7 @@ namespace HDE.IpCamClientServer.Server.Core.ImageProcessingHandlers.MovementDete
 
                            //MinIntensityBackgroundDebugView, 
                            //MaxIntensityBackgroundDebugView, 
-                           //MaxPerFrameDifferenceDebugView,
+                           MaxPerFrameDifferenceDebugView,
                            XXX,
                            DifferenceDebugView,
                            DetectedBlobDebugView

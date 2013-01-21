@@ -110,7 +110,7 @@ namespace HDE.IpCamClientServer.Server.Core.ImageProcessingHandlers.Gray
         {
             return height*stride + width;
         }
-
+        
         // this does not work.
         public static void GetRadiometricSimmilarity(
             RadiometricSimilarityImage image1,
@@ -158,7 +158,7 @@ namespace HDE.IpCamClientServer.Server.Core.ImageProcessingHandlers.Gray
             EndImage(handleMotion);
             EndImage(handleStationary);
         }
-
+        
         private static void GetMultiplier1(
             RadiometricSimilarityImage image1,
             RadiometricSimilarityImage image2,
