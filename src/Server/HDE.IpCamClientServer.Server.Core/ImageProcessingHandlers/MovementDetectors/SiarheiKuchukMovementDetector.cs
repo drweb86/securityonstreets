@@ -1,7 +1,6 @@
 using System;
 using System.Globalization;
 using System.Linq;
-using HDE.IpCamClientServer.Server.Core.ImageProcessingHandlers.Gray;
 
 namespace HDE.IpCamClientServer.Server.Core.ImageProcessingHandlers.MovementDetectors
 {
@@ -10,7 +9,6 @@ namespace HDE.IpCamClientServer.Server.Core.ImageProcessingHandlers.MovementDete
         #region Fields
 
         private int _closingOpeningMatrixSize;
-        private int _noisePercent;
         private int _comparisonCCoefficient;
 
         #endregion
@@ -27,28 +25,22 @@ namespace HDE.IpCamClientServer.Server.Core.ImageProcessingHandlers.MovementDete
                 .Select(item => item.Split(new[] {"="}, StringSplitOptions.RemoveEmptyEntries))
                 .ToDictionary(item=>item[0], item=> item.Length > 1 ? item[1] : null);
 
-            _closingOpeningMatrixSize = int.Parse(settings["ClosingOpeningMatrixSize"], CultureInfo.InvariantCulture);
+            _closingOpeningMatrixSize = Convert.ToInt32(
+                Math.Max(
+                    3, 
+                    0.02*int.Parse(settings["MaximumDetectionHeightPixels"], CultureInfo.InvariantCulture)));
 
-            if (_closingOpeningMatrixSize < 2)
+            if (_closingOpeningMatrixSize < 3)
             {
                 throw new ArgumentOutOfRangeException("ClosingOpeningMatrixSize");
             }
             _closingOpeningMatrixSize = (_closingOpeningMatrixSize / 2) * 2 + 1;
-            _noisePercent = 1200/int.Parse(settings["TrainingFrames"]);
             _comparisonCCoefficient = int.Parse(settings["comparisonCCoefficient"]);
         }
 
         protected override void InitializeBackgroundModel(int trainingFrames, int regionFrameSizeDivided2)
         {
             _backgroundModel.Initialize(trainingFrames, regionFrameSizeDivided2, (byte)_k, true);
-        }
-
-        protected override void PreprocessFrame(byte[] dataHW, int stride, int width, int height)
-        {
-            if (!_backgroundModel.IsOperational())
-            {
-                GrayScaleImageHelper.ApplySaltAndPapperNoise(_noisePercent, dataHW, stride, width, height);
-            }
         }
 
         protected override double GetThreshold(int position)

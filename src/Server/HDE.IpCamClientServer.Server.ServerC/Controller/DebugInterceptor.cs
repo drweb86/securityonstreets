@@ -32,6 +32,28 @@ namespace HDE.IpCamClientServer.Server.ServerC.Controller
 
         #region IInterceptor Implementation
 
+        public void Intercept(string status)
+        {
+            try
+            {
+                _imageSource.NewStatusReceived(this, new NewStatusEventArgs(status));
+            }
+            catch (NullReferenceException) // user closed window
+            {
+            }
+        }
+
+        public void Intercept(int currentProcessed, int totalToProcess)
+        {
+            try
+            {
+                _imageSource.NewProgressReceived(this, new NewProgressEventArgs(currentProcessed, totalToProcess));
+            }
+            catch (NullReferenceException) // user closed window
+            {
+            }
+        }
+
         public void Intercept(string key, byte[] image)
         {
             try

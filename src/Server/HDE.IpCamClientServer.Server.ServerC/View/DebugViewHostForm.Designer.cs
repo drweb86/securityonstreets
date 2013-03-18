@@ -31,6 +31,7 @@
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(DebugViewHostForm));
             this._mainToolStrip = new System.Windows.Forms.ToolStrip();
             this._takeScreenshotsToolStripButton = new System.Windows.Forms.ToolStripButton();
+            this._preparingLabel = new System.Windows.Forms.Label();
             this._mainToolStrip.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -54,11 +55,27 @@
             this._takeScreenshotsToolStripButton.Text = "Take Screenshot!";
             this._takeScreenshotsToolStripButton.Click += new System.EventHandler(this.OnTakeScreenshotsClick);
             // 
+            // _preparingLabel
+            // 
+            this._preparingLabel.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this._preparingLabel.BackColor = System.Drawing.Color.Transparent;
+            this._preparingLabel.Font = new System.Drawing.Font("Microsoft Sans Serif", 18F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this._preparingLabel.ForeColor = System.Drawing.Color.OrangeRed;
+            this._preparingLabel.Location = new System.Drawing.Point(0, 25);
+            this._preparingLabel.Name = "_preparingLabel";
+            this._preparingLabel.Size = new System.Drawing.Size(505, 316);
+            this._preparingLabel.TabIndex = 3;
+            this._preparingLabel.Text = "Preparing Data";
+            this._preparingLabel.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            // 
             // DebugViewHostForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(505, 350);
+            this.Controls.Add(this._preparingLabel);
             this.Controls.Add(this._mainToolStrip);
             this.IsMdiContainer = true;
             this.Name = "DebugViewHostForm";
@@ -75,5 +92,6 @@
 
         private System.Windows.Forms.ToolStrip _mainToolStrip;
         private System.Windows.Forms.ToolStripButton _takeScreenshotsToolStripButton;
+        private System.Windows.Forms.Label _preparingLabel;
     }
 }
