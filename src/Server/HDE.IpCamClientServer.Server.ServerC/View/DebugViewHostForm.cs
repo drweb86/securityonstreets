@@ -91,6 +91,12 @@ namespace HDE.IpCamClientServer.Server.ServerC.View
                 _imageSource = null;
             }
             _windowNo = -1;
+        
+        }
+
+        private void OnTakeScreenshotsClick(object sender, EventArgs e)
+        {
+            this.TakeMdiScreenshots();
         }
 
         #endregion

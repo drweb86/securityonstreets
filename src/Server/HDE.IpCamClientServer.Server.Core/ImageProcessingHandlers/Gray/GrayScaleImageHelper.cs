@@ -31,7 +31,7 @@ namespace HDE.IpCamClientServer.Server.Core.ImageProcessingHandlers.Gray
             var rand = new Random();
             for (int i = 0; i < (double)(width * height) * percents / 100.0; i++)
             {
-                dataHW[ToDataPosition(rand.Next(width), rand.Next(height), stride)] = (byte)rand.Next(2);
+                dataHW[ToDataPosition(rand.Next(width), rand.Next(height), stride)] = (byte)rand.Next(2) == 0 ? (byte)0: (byte)255;
             }
         }
         
