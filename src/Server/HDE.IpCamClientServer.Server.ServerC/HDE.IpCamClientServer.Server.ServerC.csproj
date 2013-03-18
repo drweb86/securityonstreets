@@ -118,6 +118,7 @@
     <Compile Include="View\DebugViewHostForm.Designer.cs">
       <DependentUpon>DebugViewHostForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="View\ViewHelper.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Common\HDE.IpCamClientServer.Common\HDE.IpCamClientServer.Common.csproj">

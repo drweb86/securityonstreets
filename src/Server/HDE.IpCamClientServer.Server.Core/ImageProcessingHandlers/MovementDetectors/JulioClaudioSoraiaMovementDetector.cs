@@ -201,8 +201,18 @@ namespace HDE.IpCamClientServer.Server.Core.ImageProcessingHandlers.MovementDete
                 }
             }
 
+            #region Debug Code
+            
+            private double[,] tempMedianHW_;
+            private double[,] tempDisperceHW_;
+
+            #endregion
+
             private void CalculateInitialBackgroundModelState()
             {
+                tempMedianHW_ = new double[_height, _width];
+                tempDisperceHW_ = new double[_height, _width];
+
                 for (int widthI = 0; widthI < _width; widthI++)
                 {
                     for (int heightI = 0; heightI < _height; heightI++)
@@ -230,6 +240,7 @@ namespace HDE.IpCamClientServer.Server.Core.ImageProcessingHandlers.MovementDete
                         }
 
                         _averageBackground[position] = (byte)medium;
+
 
                         for (int frameNo = 0; frameNo < _amountOfTrainingFrames; frameNo++)
                         {
@@ -283,14 +294,106 @@ namespace HDE.IpCamClientServer.Server.Core.ImageProcessingHandlers.MovementDete
                         _minIntensity[position] = (byte)minIntensity;
                         _maxIntensity[position] = (byte)maxIntensity;
                         _maxPerFrameDifference[position] = maxPerFrameDifference;
+
+                        tempMedianHW_[heightI, widthI] = medium;
+                        tempDisperceHW_[heightI, widthI] = disperce;
                     }
                 }
 
+                DumpRegionOfInterestData();
+
                 CalculateEnergyBackground();
 
+#warning: DEBUG code
                 DumpTrainingData();
+#warning END
 
                 _trainingDataNHW = null;
+            }
+
+            private void DumpRegionOfInterestData()
+            {
+                return;
+
+                //line=363;col=374 --403;415 
+                var roeStart = new Rectangle(363, 374, 40, 40);
+
+                var trainingData = @"D:\temp\dumps";
+                var dumpFile = Path.Combine(trainingData, "Dump-Region Of Interest.txt");
+                
+                var outf = new StreamWriter(dumpFile);
+
+
+                //todo: dump median
+                outf.WriteLine("Median dump...");
+
+                for(int heightI = roeStart.Top; heightI < roeStart.Bottom; heightI++)
+                {
+                    for(int widthI = roeStart.Left; widthI < roeStart.Right; widthI++)
+                    {
+                        outf.Write("\t{0:00.0}", tempMedianHW_[heightI, widthI]);
+                    }
+                    outf.WriteLine();
+                }
+                //todo: dump disperce
+
+                outf.WriteLine("Disperce dump...");
+
+                for (int heightI = roeStart.Top; heightI < roeStart.Bottom; heightI++)
+                {
+                    for (int widthI = roeStart.Left; widthI < roeStart.Right; widthI++)
+                    {
+                        outf.Write("\t{0:00.0}", tempDisperceHW_[heightI, widthI]);
+                    }
+                    outf.WriteLine();
+                }
+
+                //todo: dump background model
+                outf.WriteLine("Background model dump...");
+
+                for (int heightI = roeStart.Top; heightI < roeStart.Bottom; heightI++)
+                {
+                    for (int widthI = roeStart.Left; widthI < roeStart.Right; widthI++)
+                    {
+                        var position = GrayScaleImageHelper.ToDataPosition(widthI, heightI, _stride);
+
+                        outf.Write("\t{0:00.0}", _maxPerFrameDifference[position]);
+                    }
+                    outf.WriteLine();
+                }
+
+
+                //todo: dump minimum frame
+
+                outf.WriteLine("Minimum intensity dump...");
+
+                for (int heightI = roeStart.Top; heightI < roeStart.Bottom; heightI++)
+                {
+                    for (int widthI = roeStart.Left; widthI < roeStart.Right; widthI++)
+                    {
+                        var position = GrayScaleImageHelper.ToDataPosition(widthI, heightI, _stride);
+
+                        outf.Write("\t{0:00.0}", _minIntensity[position]);
+                    }
+                    outf.WriteLine();
+                }
+
+                //todo: dump maximum frame
+
+                outf.WriteLine("Maximum intensity dump...");
+
+                for (int heightI = roeStart.Top; heightI < roeStart.Bottom; heightI++)
+                {
+                    for (int widthI = roeStart.Left; widthI < roeStart.Right; widthI++)
+                    {
+                        var position = GrayScaleImageHelper.ToDataPosition(widthI, heightI, _stride);
+
+                        outf.Write("\t{0:00.0}", _maxIntensity[position]);
+                    }
+                    outf.WriteLine();
+                }
+
+                outf.Dispose();
             }
 
             private void DumpTrainingData()
@@ -383,7 +486,6 @@ namespace HDE.IpCamClientServer.Server.Core.ImageProcessingHandlers.MovementDete
                     {-1, -1, +1, -1, -1},
                 };
         }
-
 
         protected override string ProcessInternal(Bitmap bitmap)
         {
@@ -558,6 +660,11 @@ namespace HDE.IpCamClientServer.Server.Core.ImageProcessingHandlers.MovementDete
         private byte _backgroundPixel = byte.MinValue;
         private byte _foregroundPixel = byte.MaxValue;
 
+        protected virtual double GetThreshold(int position)
+        {
+            return _k*_backgroundModel._maxPerFrameDifference[position];
+        }
+
         private byte[] GetForefround(
             byte[] grayScaleHW,
             int width,
@@ -570,7 +677,7 @@ namespace HDE.IpCamClientServer.Server.Core.ImageProcessingHandlers.MovementDete
                 for (int heightI = 0; heightI < height; heightI++)
                 {
                     var position = GrayScaleImageHelper.ToDataPosition(widthI, heightI, stride);
-                    var threshold = _k * _backgroundModel._maxPerFrameDifference[position];
+                    var threshold = GetThreshold(position);
                     var pixel = grayScaleHW[position];
                     foregroundHW[position] = byte.MaxValue;
 

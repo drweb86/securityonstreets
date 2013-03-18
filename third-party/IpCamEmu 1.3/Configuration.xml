@@ -3,9 +3,32 @@
   <Servers>
     <Server Type="MJpeg">
       <Uri>http://localhost:2000/</Uri>
-      <FrameDelay>1</FrameDelay>
-
+      <FrameDelay>200</FrameDelay>
       <!-- Additional Test Configuration. -->
+      <Source Type="videoFile" Name="Abandoned Baggage Detection - EASY.AVI">
+        <File>Abandoned Baggage Detection - EASY.AVI</File>
+        <InstanciateMode>InstancePerClient</InstanciateMode>
+        <Format>Jpeg</Format>
+        <BufferFrames>10000</BufferFrames>
+        <TimeStart>0:0:00:00.100</TimeStart>
+        <TimeEnd>0:0:01:47.000</TimeEnd>
+        <TimeStep>0:0:00:00.200</TimeStep>
+        <RotateY>true</RotateY>
+      </Source>
+
+      <!-- Additional Test Configuration.
+      <Source Type="videoFile" Name="hall_monitor.mpg">
+        <File>hall_monitor.mpg</File>
+        <InstanciateMode>InstancePerClient</InstanciateMode>
+        <Format>Jpeg</Format>
+        <BufferFrames>10000</BufferFrames>
+        <TimeStart>0:0:00:00.100</TimeStart>
+        <TimeEnd>0:0:02:00.000</TimeEnd>
+        <TimeStep>0:0:00:00.100</TimeStep>
+        <RotateY>true</RotateY>
+      </Source>-->
+
+      <!-- Additional Test Configuration.
       <Source Type="videoFile" Name="Camera C29M4H3-Training Data Set-Stripped640x480Fps15">
         <File>C29M4H3-Training Data Set-Stripped640x480Fps15.avi</File>
         <InstanciateMode>InstancePerClient</InstanciateMode>
@@ -15,7 +38,7 @@
         <TimeEnd>0:0:02:00.000</TimeEnd>
         <TimeStep>0:0:00:00.100</TimeStep>
         <RotateY>true</RotateY>
-      </Source>
+      </Source> -->
 
       <!-- SS101668
       <Source Type="videoFile" Name="Camera SS101668">

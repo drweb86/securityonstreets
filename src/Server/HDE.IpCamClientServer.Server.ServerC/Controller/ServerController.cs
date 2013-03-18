@@ -3,6 +3,7 @@ using System.Configuration;
 using System.IO;
 using HDE.IpCamClientServer.Server.ServerC.Commands;
 using HDE.IpCamClientServer.Server.ServerC.Model;
+using HDE.IpCamClientServer.Server.ServerC.View;
 using HDE.Platform.Logging;
 
 namespace HDE.IpCamClientServer.Server.ServerC.Controller
@@ -20,7 +21,8 @@ namespace HDE.IpCamClientServer.Server.ServerC.Controller
         public ServerModel Model { get; private set; }
         public ILog Log { get; private set; }
         public OperationMode OperationMode { get; private set; }
-        
+        public string AppName { get { return "HDE.IpCamClientServer.Server.ServerC"; } }
+
         #endregion
 
         #region Constructors
@@ -32,7 +34,7 @@ namespace HDE.IpCamClientServer.Server.ServerC.Controller
                 new SimpleFileLog(
                     Path.Combine(
                         Path.GetTempPath(),
-                        "HDE.IpCamClientServer.Server.ServerC")));
+                        AppName)));
 
             Log.Open();
 
