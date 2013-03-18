@@ -3,7 +3,7 @@ using System.Drawing;
 namespace HDE.IpCamClientServer.Server.Core.ImageProcessingHandlers.MovementDetectors
 {
     public abstract class MovementDetectorBase<TBackgroundModel>: IHandler
-        where TBackgroundModel : class, new()
+        where TBackgroundModel : class, IMovementDetectorBackgroundModel, new()
     {
         #region Fields
 
@@ -21,6 +21,7 @@ namespace HDE.IpCamClientServer.Server.Core.ImageProcessingHandlers.MovementDete
         public virtual void Configure(string configurationString)
         {
             _backgroundModel = new TBackgroundModel();
+            _backgroundModel.SetInterceptor(_interceptor);
 
             _skipStartingFrames = 10;
         }

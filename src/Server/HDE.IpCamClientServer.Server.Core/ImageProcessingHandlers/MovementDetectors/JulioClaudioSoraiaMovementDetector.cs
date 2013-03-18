@@ -52,7 +52,7 @@ namespace HDE.IpCamClientServer.Server.Core.ImageProcessingHandlers.MovementDete
 
         #region Nested Types
 
-        public class JulioClaudioSoraiaMovementDetectorBackgroundModel
+        public class JulioClaudioSoraiaMovementDetectorBackgroundModel: IMovementDetectorBackgroundModel
         {
             #region Constants
 
@@ -79,7 +79,7 @@ namespace HDE.IpCamClientServer.Server.Core.ImageProcessingHandlers.MovementDete
 
             #endregion
 
-
+            private IInterceptor _interceptor;
             private byte[][] _trainingDataNHW;
             private int _amountOfTrainingFrames;
             private int _amountOfTrainingFramesLeft = -1;
@@ -134,6 +134,8 @@ namespace HDE.IpCamClientServer.Server.Core.ImageProcessingHandlers.MovementDete
                 }
                 _amountOfTrainingFramesLeft--;
 
+                _interceptor.Intercept(_amountOfTrainingFrames - _amountOfTrainingFramesLeft, _amountOfTrainingFrames);
+
                 _stride = stride;
                 _width = width;
                 _height = height;
@@ -167,6 +169,11 @@ namespace HDE.IpCamClientServer.Server.Core.ImageProcessingHandlers.MovementDete
                 {
                     CalculateInitialBackgroundModelState();
                 }
+            }
+
+            public void SetInterceptor(IInterceptor interceptor)
+            {
+                _interceptor = interceptor;
             }
 
             #endregion
@@ -470,11 +477,6 @@ namespace HDE.IpCamClientServer.Server.Core.ImageProcessingHandlers.MovementDete
             _backgroundModel.Initialize(trainingFrames, regionFrameSizeDivided2, 2, false);
         }
 
-        protected virtual void PreprocessFrame(byte[] dataHW, int stride, int width, int height)
-        {
-
-        }
-
         protected virtual short[,] CreateClosingOpeningFileter()
         {
             return new short[,]
@@ -497,8 +499,6 @@ namespace HDE.IpCamClientServer.Server.Core.ImageProcessingHandlers.MovementDete
                 Marshal.Copy(bitmapData.Scan0, grayScaleHW, 0, grayScaleImage.Height * bitmapData.Stride);
                 var stride = bitmapData.Stride;
                 grayScaleImage.UnlockBits(bitmapData);
-
-                PreprocessFrame(grayScaleHW, stride, grayScaleImage.Width, grayScaleImage.Height);
 
                 if (!_backgroundModel.IsOperational())
                 {

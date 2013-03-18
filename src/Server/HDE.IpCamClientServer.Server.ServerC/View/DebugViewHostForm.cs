@@ -33,11 +33,44 @@ namespace HDE.IpCamClientServer.Server.ServerC.View
             _imageSource = imageSource;
             _imageSource.NewFrameReceived += OnNewFrameReceived;
             _imageSource.DisposeRequested += OnCloseRequested;
+            _imageSource.NewStatusReceived += OnNewStatusReceived;
+            _imageSource.NewProgressReceived += OnNewProgressReceived;
         }
 
         #endregion
 
         #region Private Methods
+
+        private void OnNewStatusReceived(object sender, NewStatusEventArgs e)
+        {
+            if (InvokeRequired)
+            {
+                // that ninjutsu helps with OutOfMemory!
+                BeginInvoke(new EventHandler<NewStatusEventArgs>(OnNewStatusReceived), sender, e)
+                    .AsyncWaitHandle.WaitOne();
+            }
+            else
+            {
+                Text = e.Status;
+            }
+        }
+
+        private void OnNewProgressReceived(object sender, NewProgressEventArgs e)
+        {
+            if (InvokeRequired)
+            {
+                // that ninjutsu helps with OutOfMemory!
+                BeginInvoke(new EventHandler<NewProgressEventArgs>(OnNewProgressReceived), sender, e)
+                    .AsyncWaitHandle.WaitOne();
+            }
+            else
+            {
+                _preparingLabel.Text = string.Format("Preparing {0} / {1} ({2}% completed)",
+                    e.Current,
+                    e.Total,
+                    Math.Truncate(100.0 * e.Current / e.Total));
+            }
+        }
 
         private void OnCloseRequested(object sender, EventArgs e)
         {
@@ -71,6 +104,7 @@ namespace HDE.IpCamClientServer.Server.ServerC.View
                     {
                         Text = "Debugging";
                     }
+                    _preparingLabel.Visible = false;
                     _windowNo++;
                     var debugWindow = new DebugViewForm(_windowNo);
                     debugWindow.MdiParent = this;
@@ -88,6 +122,8 @@ namespace HDE.IpCamClientServer.Server.ServerC.View
             {
                 _imageSource.DisposeRequested -= OnCloseRequested;
                 _imageSource.NewFrameReceived -= OnNewFrameReceived;
+                _imageSource.NewStatusReceived -= OnNewStatusReceived;
+                _imageSource.NewProgressReceived -= OnNewProgressReceived;
                 _imageSource = null;
             }
             _windowNo = -1;
